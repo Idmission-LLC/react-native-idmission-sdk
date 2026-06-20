@@ -1,0 +1,45 @@
+{
+  "name": "react-native-idmission-sdk",
+  "version": "11.1.7",
+  "description": "React Native module wrapping the IDmission Identity SDK for Android and iOS — identity verification, ID document capture, face match, liveness detection, and biometric enrollment.",
+  "main": "src/index.js",
+  "react-native": "src/index.js",
+  "source": "src/index.js",
+  "files": [
+    "src",
+    "android",
+    "ios",
+    "react-native-idmission-sdk.podspec",
+    "README.md",
+    "INTEGRATION_GUIDE.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "!**/__tests__",
+    "!**/.*"
+  ],
+  "keywords": [
+    "react-native",
+    "ios",
+    "android",
+    "idmission",
+    "identity",
+    "kyc",
+    "biometrics",
+    "face-match",
+    "liveness"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git"
+  },
+  "author": "IDmission <support@idmission.com>",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/Idmission-LLC/react-native-idmission-sdk/issues"
+  },
+  "homepage": "https://github.com/Idmission-LLC/react-native-idmission-sdk#readme",
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  }
+}

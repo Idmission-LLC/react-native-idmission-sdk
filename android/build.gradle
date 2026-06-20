@@ -1,0 +1,64 @@
+apply plugin: "com.android.library"
+
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
+android {
+    namespace "com.idmission.reactsdk"
+
+    compileSdkVersion safeExtGet("compileSdkVersion", 36)
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    defaultConfig {
+        minSdkVersion safeExtGet("minSdkVersion", 26)
+        targetSdkVersion safeExtGet("targetSdkVersion", 36)
+        multiDexEnabled true
+        ndk {
+            abiFilters "arm64-v8a"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    lintOptions {
+        disable "InvalidPackage"
+        abortOnError false
+    }
+}
+
+repositories {
+    google()
+    mavenCentral()
+
+    // IDmission native SDK (idmission-mediumsdk) — also add this to your app's
+    // project-level build.gradle so the dependency resolves in your build.
+    maven {
+        url "https://gitlab.idmission.com/api/v4/projects/220/packages/maven"
+        name "GitLab"
+        credentials(HttpHeaderCredentials) {
+            name = "Private-Token"
+            value = "WESesyuSD9fQeqNEyig6"
+        }
+        authentication {
+            header(HttpHeaderAuthentication)
+        }
+    }
+    // Required for fingerprint capture transitive dependencies
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    // The version of react-native is set by the React Native Gradle Plugin in the host app
+    implementation "com.facebook.react:react-android"
+    implementation "org.apache.commons:commons-lang3:3.12.0"
+    implementation "com.idmission.sdk2:idmission-mediumsdk:11.1.07.2.23"
+}

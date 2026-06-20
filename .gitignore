@@ -1,0 +1,28 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build output
+lib/
+build/
+*.tgz
+
+# Android
+.gradle/
+*.iml
+local.properties
+.kotlin/
+android/build/
+
+# iOS / CocoaPods
+ios/build/
+example/ios/Pods/
+example/ios/build/
+*.xcworkspace/xcuserdata/
+DerivedData/
+
+# Misc
+.DS_Store
+*.log
+.idea/

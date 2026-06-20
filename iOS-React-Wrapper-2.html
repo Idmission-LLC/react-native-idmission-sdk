@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS React Native Wrapper – IDmission Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --accent: #2c7be5; --body-bg: #ffffff;
+            --text: #333d42; --text-muted: #6b7880; --border: #e0e4e7;
+            --code-bg: #1e2224; --code-text: #e3eaf0; --code-border: #3a4449;
+            --inline-code-bg: #f0f4f7; --inline-code-text: #c0392b;
+            --h2-color: #1a2226; --h3-color: #2E3336;
+        }
+        html, body { height: 100%; font-family: 'Source Sans Pro', -apple-system, sans-serif; font-size: 15px; color: var(--text); background: var(--body-bg); }
+        .page-wrapper { display: flex; min-height: 100vh; }
+        .main-content { min-height: 100vh; }
+        .content-body { max-width: 860px; padding: 40px 48px 80px; }
+        .content-body h1 { font-size: 30px; font-weight: 700; color: var(--h2-color); margin-bottom: 8px; line-height: 1.25; padding-bottom: 14px; border-bottom: 2px solid var(--border); }
+        .page-subtitle { font-size: 15px; color: var(--text-muted); margin-bottom: 36px; margin-top: 4px; }
+        .content-body h2 { font-size: 20px; font-weight: 700; color: var(--h2-color); margin: 44px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        .content-body h3 { font-size: 16px; font-weight: 700; color: var(--h3-color); margin: 28px 0 10px; }
+        .content-body p { line-height: 1.7; margin-bottom: 14px; color: var(--text); }
+        .content-body a { color: var(--accent); text-decoration: none; }
+        .content-body a:hover { text-decoration: underline; }
+        .steps { list-style: none; margin: 0 0 24px; }
+        .step { display: flex; gap: 16px; margin-bottom: 28px; align-items: flex-start; }
+        .step-num { flex-shrink: 0; width: 28px; height: 28px; background: var(--accent); color: #fff; border-radius: 50%; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+        .step-body { flex: 1; }
+        .step-body p { margin-bottom: 10px; }
+        .code-block { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 6px; margin: 14px 0 20px; position: relative; overflow: hidden; }
+        .code-block-header { background: rgba(255,255,255,0.04); border-bottom: 1px solid var(--code-border); padding: 7px 14px; display: flex; align-items: center; justify-content: space-between; }
+        .code-lang { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: #6b8a99; }
+        .copy-btn { background: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; color: #8fa5b0; cursor: pointer; font-size: 11px; font-family: inherit; padding: 3px 10px; display: flex; align-items: center; gap: 5px; transition: all 0.15s; }
+        .copy-btn:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.3); }
+        .copy-btn svg { width: 12px; height: 12px; }
+        .code-block pre { padding: 16px 18px; overflow-x: auto; margin: 0; }
+        .code-block code { font-family: 'Source Code Pro', 'Menlo', 'Monaco', monospace; font-size: 13px; line-height: 1.6; color: var(--code-text); white-space: pre; }
+        code { font-family: 'Source Code Pro', 'Menlo', monospace; font-size: 13px; background: var(--inline-code-bg); color: var(--inline-code-text); padding: 1px 5px; border-radius: 3px; }
+        .code-block code { background: none; color: var(--code-text); padding: 0; }
+        .sub-steps { list-style: none; margin: 12px 0 0 0; }
+        .sub-step { display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-start; }
+        .sub-bullet { flex-shrink: 0; width: 7px; height: 7px; background: var(--accent); border-radius: 50%; margin-top: 7px; }
+        .api-functions { margin-top: 12px; }
+        .api-fn { border: 1px solid var(--border); border-radius: 6px; margin-bottom: 14px; overflow: hidden; }
+        .api-fn-header { background: #f7f9fb; padding: 10px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+        .api-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; background: var(--accent); color: #fff; border-radius: 3px; padding: 2px 7px; }
+        .api-fn-name { font-family: 'Source Code Pro', monospace; font-size: 13px; font-weight: 600; color: var(--h2-color); }
+        .api-fn-body { padding: 10px 16px; font-size: 14px; color: var(--text-muted); }
+        .api-fn .code-block { margin: 8px 0 0; }
+        .callout { background: #f0f6ff; border-left: 4px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 16px 0; font-size: 14px; line-height: 1.6; color: var(--text); }
+        @media (max-width: 768px) { .content-body { padding: 24px 20px 60px; } }
+    </style>
+</head>
+<body>
+<div class="page-wrapper">
+    <div class="main-content">
+        <div class="content-body">
+            <h1 id="setup">iOS React Native Wrapper</h1>
+            <p class="page-subtitle">Integrate IDmission's IDentity SDK into your iOS React Native application.</p>
+
+            <h2>Prerequisites</h2>
+            <ul class="sub-steps" style="margin-bottom: 20px;">
+                <li class="sub-step"><span class="sub-bullet"></span><div><strong>React Native</strong> 0.83 or later (bare workflow or a custom dev client — <em>not</em> Expo Go) — <a href="https://reactnative.dev/docs/environment-setup" target="_blank">React Native environment setup →</a></div></li>
+                <li class="sub-step"><span class="sub-bullet"></span><div><strong>Node</strong> 20 or later</div></li>
+                <li class="sub-step"><span class="sub-bullet"></span><div><strong>iOS deployment target 15.6</strong> and a recent <strong>Xcode</strong></div></li>
+                <li class="sub-step"><span class="sub-bullet"></span><div><strong>CocoaPods</strong> plus the <code>cocoapods-user-defined-build-types</code> gem</div></li>
+                <li class="sub-step"><span class="sub-bullet"></span><div>A <strong>physical iOS device</strong> — the simulator does not support camera capture</div></li>
+            </ul>
+
+            <h2>Setup</h2>
+            <ol class="steps">
+
+                <li class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <p>Install the module directly from GitHub with npm. No Google Drive download is required — the native module is autolinked.</p>
+                        <div class="code-block">
+                            <div class="code-block-header"><span class="code-lang">Shell</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
+                            <pre><code>npm install git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git#v11.1.7</code></pre>
+                        </div>
+                        <div class="callout">The <code>#v11.1.7</code> suffix pins the install to the release tag. Do not track <code>main</code>.</div>
+                    </div>
+                </li>
+
+                <li class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <p>Install the CocoaPods plugin required for the SDK's mixed framework linking.</p>
+                        <div class="code-block">
+                            <div class="code-block-header"><span class="code-lang">Shell</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
+                            <pre><code>sudo gem install cocoapods-user-defined-build-types</code></pre>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <p>Update <code>ios/Podfile</code>. Add the plugin lines at the top and declare the IDmission pods inside your app target. Replace <code>YourAppName</code> with your target's name.</p>
+                        <div class="code-block">
+                            <div class="code-block-header"><span class="code-lang">ios/Podfile</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
+                            <pre><code>plugin 'cocoapods-user-defined-build-types'
+
+enable_user_defined_build_types!
+
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
+
+platform :ios, '15.6'
+prepare_react_native_project!
+
+target 'YourAppName' do
+  config = use_native_modules!
+
+  pod 'IDentityMediumSDK2.0'
+  pod 'IDentityMediumModels'
+  pod 'GZIP', :build_type =&gt; :dynamic_framework
+  pod 'GoogleMLKit/TextRecognition', :build_type =&gt; :dynamic_framework
+
+  use_react_native!(
+    :path =&gt; config[:reactNativePath],
+    :app_path =&gt; "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  post_install do |installer|
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled =&gt; false
+    )
+  end
+end</code></pre>
+                        </div>
+                        <div class="callout">The <code>GZIP</code> and <code>GoogleMLKit/TextRecognition</code> pods must be linked as <code>:dynamic_framework</code> — that is what the <code>cocoapods-user-defined-build-types</code> plugin enables. Omitting it causes linker errors.</div>
+                    </div>
+                </li>
+
+                <li class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-body">
+                        <p>Install the pods. This downloads several large frameworks, so allow a few minutes on a clean install.</p>
+                        <div class="code-block">
+                            <div class="code-block-header"><span class="code-lang">Shell</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
+                            <pre><code>cd ios
+LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pod install
+cd ..</code></pre>
+                        </div>
+                        <div class="callout">The <code>LANG</code> / <code>LC_ALL</code> prefixes avoid the CocoaPods <code>Unicode Normalization not appropriate for ASCII-8BIT</code> error on non-UTF-8 terminals.</div>
+                    </div>
+                </li>
+
+                <li class="step">
+                    <div class="step-num">5</div>
+                    <div class="step-body">
+                        <p>Add the required camera, microphone, and photo-library permission strings to <code>ios/YourAppName/Info.plist</code>. A missing key causes an immediate crash on iOS 14+.</p>
+                        <div class="code-block">
+                            <div class="code-block-header"><span class="code-lang">Info.plist</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
+                            <pre><code>&lt;key&gt;NSCameraUsageDescription&lt;/key&gt;
+&lt;string&gt;Camera access is required to capture identity documents and verify your face.&lt;/string&gt;
+
+&lt;key&gt;NSMicrophoneUsageDescription&lt;/key&gt;
+&lt;string&gt;Microphone access may be required during identity verification.&lt;/string&gt;
+
+&lt;key&gt;NSPhotoLibraryUsageDescription&lt;/key&gt;
+&lt;string&gt;Photo library access is required to select identity documents for verification.&lt;/string&gt;</code></pre>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="step">
+                    <div class="step-num">6</div>
+                    <div class="step-body">
+                        <p>Build and run on a physical device.</p>
+                        <div class="code-block">
+                            <div class="code-block-header"><span class="code-lang">Shell</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
+                            <pre><code>npm run ios</code></pre>
+                        </div>
+                        <div class="callout">The IDentity SDK requires a physical device — the iOS Simulator does not support camera capture and will not run the SDK flows.</div>
+                    </div>
+                </li>
+
+            </ol>
+
+            <h2 id="available-functions">Available Functions</h2>
+            <p>Import the module and follow this pattern. Results for every call are delivered asynchronously through the <code>DataCallback</code> event.</p>
+            <div class="code-block">
+                <div class="code-block-header"><span class="code-lang">JavaScript — usage pattern</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
+                <pre><code>import { IDMissionSDK, addDataCallbackListener } from 'react-native-idmission-sdk';
+
+// 1. Subscribe to results (init, services, and submit all emit here)
+const subscription = addDataCallbackListener((event) =&gt; {
+  console.log('IDmission result:', event.data);
+});
+
+// 2. Initialise once before calling any service
+IDMissionSDK.initializeSDK(apiBaseUrl, authUrl, debug, accessToken);
+
+// 3. Call a service
+IDMissionSDK.serviceID10();
+
+// 4. Submit the result
+IDMissionSDK.submitResult();
+
+// 5. Clean up when done
+subscription.remove();</code></pre>
+            </div>
+
+            <div class="api-functions">
+                <div class="api-fn">
+                    <div class="api-fn-header"><span class="api-badge">Init</span><span class="api-fn-name">IDMissionSDK.initializeSDK</span></div>
+                    <div class="api-fn-body"><p>Initializes the SDK. Must be called before any other function.</p>
+                        <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.initializeSDK(
+  apiBaseUrl,   // string — API base URL, provided by IDmission
+  authUrl,      // string — auth URL, provided by IDmission
+  debug,        // string — 'y' enables verbose logging, 'n' disables it
+  accessToken   // string — your IDmission access token
+);</code></pre></div></div>
+                </div>
+                <div class="api-fn">
+                    <div class="api-fn-header"><span class="api-badge">Service</span><span class="api-fn-name">IDMissionSDK.serviceID20</span></div>
+                    <div class="api-fn-body"><p>Initiates the <strong>ID Validation</strong> (Service ID 20) flow. Captures and validates a government-issued ID document.</p>
+                        <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.serviceID20();
+IDMissionSDK.submitResult();</code></pre></div></div>
+                </div>
+                <div class="api-fn">
+                    <div class="api-fn-header"><span class="api-badge">Service</span><span class="api-fn-name">IDMissionSDK.serviceID10</span></div>
+                    <div class="api-fn-body"><p>Initiates the <strong>ID Validation and Match Face</strong> (Service ID 10) flow. Captures an ID document and matches a live selfie to the photo on the ID.</p>
+                        <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.serviceID10();
+IDMissionSDK.submitResult();</code></pre></div></div>
+                </div>
+                <div class="api-fn">
+                    <div class="api-fn-header"><span class="api-badge">Service</span><span class="api-fn-name">IDMissionSDK.serviceID185</span></div>
+                    <div class="api-fn-body"><p>Initiates the <strong>Identify Customer</strong> (Service ID 185) flow.</p>
+                        <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.serviceID185();
+IDMissionSDK.submitResult();</code></pre></div></div>
+                </div>
+                <div class="api-fn">
+                    <div class="api-fn-header"><span class="api-badge">Service</span><span class="api-fn-name">IDMissionSDK.serviceID660</span></div>
+                    <div class="api-fn-body"><p>Initiates the <strong>Live Face Check</strong> (Service ID 660) flow. Performs liveness detection without document capture.</p>
+                        <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.serviceID660();
+IDMissionSDK.submitResult();</code></pre></div></div>
+                </div>
+                <div class="api-fn">
+                    <div class="api-fn-header"><span class="api-badge">Service</span><span class="api-fn-name">IDMissionSDK.serviceID50</span></div>
+                    <div class="api-fn-body"><p>Initiates the <strong>ID Validation and Customer Enroll</strong> (Service ID 50) flow. Pass your unique customer number.</p>
+                        <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.serviceID50(uniqueCustomerNumber); // string
+IDMissionSDK.submitResult();</code></pre></div></div>
+                </div>
+                <div class="api-fn">
+                    <div class="api-fn-header"><span class="api-badge">Service</span><span class="api-fn-name">IDMissionSDK.serviceID175</span></div>
+                    <div class="api-fn-body"><p>Initiates the <strong>Customer Enroll Biometrics</strong> (Service ID 175) flow.</p>
+                        <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.serviceID175(uniqueCustomerNumber); // string
+IDMissionSDK.submitResult();</code></pre></div></div>
+                </div>
+                <div class="api-fn">
+                    <div class="api-fn-header"><span class="api-badge">Service</span><span class="api-fn-name">IDMissionSDK.serviceID105</span></div>
+                    <div class="api-fn-body"><p>Initiates the <strong>Customer Verification</strong> (Service ID 105) flow.</p>
+                        <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.serviceID105(uniqueCustomerNumber); // string
+IDMissionSDK.submitResult();</code></pre></div></div>
+                </div>
+                <div class="api-fn">
+                    <div class="api-fn-header"><span class="api-badge">Submit</span><span class="api-fn-name">IDMissionSDK.submitResult</span></div>
+                    <div class="api-fn-body"><p>Submits the captured data and finalizes the current service flow. Call after every service.</p>
+                        <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.submitResult();</code></pre></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        setTimeout(() => btn.innerHTML = orig, 2000);
+    });
+}
+</script>
+</body>
+</html>
