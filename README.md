@@ -9,13 +9,13 @@ React Native module wrapping the **IDmission Identity SDK** for Android and iOS.
 Install directly from the git repository with npm:
 
 ```bash
-npm install git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git#v11.1.7
+npm install git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git#v11.1.13
 ```
 
 or with Yarn:
 
 ```bash
-yarn add git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git#v11.1.7
+yarn add git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git#v11.1.13
 ```
 
 The native module is **autolinked** — no manual native file copying is required. After installing:
@@ -77,5 +77,5 @@ A working example app is included in [`example/`](example/).
 
 ## Native SDK versions
 
-- Android: `idmission-mediumsdk 11.1.07.2.23`
-- iOS: `IDentityMediumSDK2.0 11.1.7.2.4`
+- Android: `idmission-mediumsdk 11.1.13.2.01`
+- iOS: `IDentityMediumSDK2.0 11.1.13.2.1`

@@ -1,8 +1,8 @@
 # IDmission React Native Module — Integration Guide
 
 **Package:** `react-native-idmission-sdk`
-**Android native SDK:** 11.1.07.2.23
-**iOS native SDK:** 11.1.7.2.4
+**Android native SDK:** 11.1.13.2.01
+**iOS native SDK:** 11.1.13.2.1
 **Minimum React Native:** 0.83
 
 ---
@@ -27,16 +27,16 @@
 Install the module directly from git. No Google Drive download is required.
 
 ```bash
-npm install git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git#v11.1.7
+npm install git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git#v11.1.13
 ```
 
 or with Yarn:
 
 ```bash
-yarn add git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git#v11.1.7
+yarn add git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git#v11.1.13
 ```
 
-The `#v11.1.7` suffix pins the install to the release tag — do not track `main`.
+The `#v11.1.13` suffix pins the install to the release tag — do not track `main`.
 
 React Native **autolinking** discovers the native module automatically; you do **not** edit `MainApplication`, register a package, or drag files into Xcode.
 

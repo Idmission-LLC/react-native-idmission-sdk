@@ -1,9 +1,20 @@
 # Changelog
 
+## 11.1.13
+
+**Android native SDK: 11.1.13.2.01**
+**iOS native SDK: 11.1.13.2.1**
+
+### Android
+* Bumped `idmission-mediumsdk` to 11.1.13.2.01
+
+### iOS
+* Bumped IDentityMediumSDK2.0 / IDentityMediumModels to 11.1.13.2.1
+
 ## 11.1.7
 
 **Android native SDK: 11.1.07.2.23 — Released 28 April 2026**
-**iOS native SDK: 11.1.7.2.4**
+**iOS native SDK: 11.1.7.2.7**
 
 ### Android
 * Added customizable properties for enhanced UI flexibility
@@ -14,7 +25,7 @@
 * Added support for separate front and back ID capture flow for improved control and user experience
 
 ### iOS
-* IDentityMediumSDK2.0 version 11.1.7.2.4
+* IDentityMediumSDK2.0 version 11.1.7.2.7
 
 ### React Native wrapper
 * Module is now installable directly via an `npm` git reference — no Google Drive zip download required

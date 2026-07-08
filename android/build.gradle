@@ -60,5 +60,5 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin in the host app
     implementation "com.facebook.react:react-android"
     implementation "org.apache.commons:commons-lang3:3.12.0"
-    implementation "com.idmission.sdk2:idmission-mediumsdk:11.1.07.2.23"
+    implementation "com.idmission.sdk2:idmission-mediumsdk:11.1.13.2.01"
 }

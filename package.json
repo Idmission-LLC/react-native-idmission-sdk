@@ -1,6 +1,6 @@
 {
   "name": "react-native-idmission-sdk",
-  "version": "11.1.7",
+  "version": "11.1.13",
   "description": "React Native module wrapping the IDmission Identity SDK for Android and iOS — identity verification, ID document capture, face match, liveness detection, and biometric enrollment.",
   "main": "src/index.js",
   "react-native": "src/index.js",
