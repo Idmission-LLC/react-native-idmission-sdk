@@ -32,8 +32,8 @@ PODS:
   - hermes-engine (0.14.0):
     - hermes-engine/Pre-built (= 0.14.0)
   - hermes-engine/Pre-built (0.14.0)
-  - IDentityMediumModels (11.1.13.2.1)
-  - IDentityMediumSDK2.0 (11.1.13.2.1)
+  - IDentityMediumModels (11.1.13.2.3)
+  - IDentityMediumSDK2.0 (11.1.13.2.3)
   - MLImage (1.0.0-beta8)
   - MLKitCommon (14.0.0):
     - GoogleDataTransport (~> 10.0)
@@ -2722,8 +2722,8 @@ DEPENDENCIES:
   - GoogleMLKit/TextRecognition
   - GZIP
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
-  - IDentityMediumModels (from `https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git`, tag `11.1.13.2.1`)
-  - IDentityMediumSDK2.0 (from `https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git`, tag `11.1.13.2.1`)
+  - IDentityMediumModels (from `https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git`, tag `11.1.13.2.3`)
+  - IDentityMediumSDK2.0 (from `https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git`, tag `11.1.13.2.3`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
   - RCTRequired (from `../node_modules/react-native/Libraries/Required`)
@@ -2836,10 +2836,10 @@ EXTERNAL SOURCES:
     :tag: hermes-v0.14.0
   IDentityMediumModels:
     :git: https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git
-    :tag: 11.1.13.2.1
+    :tag: 11.1.13.2.3
   IDentityMediumSDK2.0:
     :git: https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git
-    :tag: 11.1.13.2.1
+    :tag: 11.1.13.2.3
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTDeprecation:
@@ -2992,10 +2992,10 @@ EXTERNAL SOURCES:
 CHECKOUT OPTIONS:
   IDentityMediumModels:
     :git: https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git
-    :tag: 11.1.13.2.1
+    :tag: 11.1.13.2.3
   IDentityMediumSDK2.0:
     :git: https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git
-    :tag: 11.1.13.2.1
+    :tag: 11.1.13.2.3
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
@@ -3011,8 +3011,8 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   GZIP: 3c0abf794bfce8c7cb34ea05a1837752416c8868
   hermes-engine: eb95f12a57c89ba6c51326366757698593b7b4cd
-  IDentityMediumModels: 64f0572fb5b6c7c905be506246ba3b19e916bb84
-  IDentityMediumSDK2.0: 33965fbad7cad5aeaffc1899f86d7dd9a7a0dffd
+  IDentityMediumModels: a5af1c1500d2332600f202ac54a6ec3b08a1acea
+  IDentityMediumSDK2.0: 47a98aa8e9fc383920309ad8e83dd7b38c68aa52
   MLImage: 0de5c6c2bf9e93b80ef752e2797f0836f03b58c0
   MLKitCommon: 47d47b50a031d00db62f1b0efe5a1d8b09a3b2e6
   MLKitTextRecognition: c0ad24510481dfc8893ad15dfcb8a5f05ed9e826
@@ -3096,6 +3096,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 5456bb010373068fc92221140921b09d126b116e
 
-PODFILE CHECKSUM: 36b741632501a4fe54a440a5d87b019a7a8cda41
+PODFILE CHECKSUM: 60311d0c64f2aa4673e9bd2cb6bc062c76d73f20
 
 COCOAPODS: 1.16.2

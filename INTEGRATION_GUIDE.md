@@ -2,7 +2,7 @@
 
 **Package:** `react-native-idmission-sdk`
 **Android native SDK:** 11.1.13.2.08
-**iOS native SDK:** 11.1.13.2.1
+**iOS native SDK:** 11.1.13.2.3
 **Minimum React Native:** 0.83
 
 ---
