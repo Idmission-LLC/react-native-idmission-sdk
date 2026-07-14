@@ -95,6 +95,13 @@ const styles = StyleSheet.create({
     actionButtonTextSecondary: {
         color: constant.primary,
     },
+    tokenErrorText: {
+        color: constant.error,
+        fontSize: 13,
+        marginTop: 6,
+        marginBottom: 4,
+        marginLeft: 4,
+    },
     submitButton: {
         backgroundColor: constant.success,
         marginVertical: 24,
