@@ -1,5 +1,7 @@
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
-const exclusionList = require('metro-config/src/defaults/exclusionList');
+// metro-config's `exports` map blocks the old `src/defaults/...` deep path; the
+// supported alias is `private/*` -> `src/*.js`, and it's now a `.default` export.
+const exclusionList = require('metro-config/private/defaults/exclusionList').default;
 const path = require('path');
 
 /**

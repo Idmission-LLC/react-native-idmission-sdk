@@ -3,9 +3,12 @@ import IDentityMediumSDK
 import SelfieCaptureMedium
 import IDCaptureMedium
 
-class IDentitySDKHelper : NSObject{
+// `public` is required (not just @objc): the pod builds with DEFINES_MODULE = YES,
+// so Swift only emits *public* @objc declarations into the generated
+// `react_native_idmission_sdk-Swift.h` that IDMissionSDK.m imports.
+@objc public class IDentitySDKHelper : NSObject{
   
-  @IBAction func initializeSDK(data: NSDictionary, instances: UIViewController) {
+  @objc public func initializeSDK(data: NSDictionary, instances: UIViewController) {
     IDCapture.options.enableInstructionScreen = false
     SelfieCapture.options.enableInstructionScreen = false
     
@@ -61,17 +64,17 @@ class IDentitySDKHelper : NSObject{
 }
   
   // 20 - ID Validation
-  @IBAction func startIDValidations(instances: UIViewController) {
+  @objc public func startIDValidations(instances: UIViewController) {
     ViewController().startIDValidation(instance: instances);
   }
  
   // 10 - ID Validation and Match Face
-  @IBAction func startIDValidationAndMatchFaces(instances: UIViewController) {
+  @objc public func startIDValidationAndMatchFaces(instances: UIViewController) {
     ViewController().startIDValidationAndMatchFace(instance: instances);
   }
   
   // 50 - ID Validation And Customer Enroll
-  @IBAction func startIDValidationAndCustomerEnrolls(uniqueNumbers: String, instances: UIViewController) {
+  @objc public func startIDValidationAndCustomerEnrolls(uniqueNumbers: String, instances: UIViewController) {
     if(uniqueNumbers.count>1){
     ViewController().startIDValidationAndCustomerEnroll(uniqueNumber: uniqueNumbers, instance: instances);
     } else {
@@ -80,7 +83,7 @@ class IDentitySDKHelper : NSObject{
   }
   
   // 175 - Customer Enroll Biometrics
-  @IBAction func startCustomerEnrollBiometricss(uniqueNumbers: String, instances: UIViewController) {
+  @objc public func startCustomerEnrollBiometricss(uniqueNumbers: String, instances: UIViewController) {
     if(uniqueNumbers.count>1){
     ViewController().startCustomerEnrollBiometrics(uniqueNumber: uniqueNumbers, instance: instances);
     } else {
@@ -89,7 +92,7 @@ class IDentitySDKHelper : NSObject{
   }
   
   // 105 - Customer Verification
-  @IBAction func startCustomerVerifications(uniqueNumbers: String, instances: UIViewController) {
+  @objc public func startCustomerVerifications(uniqueNumbers: String, instances: UIViewController) {
     if(uniqueNumbers.count>1){
       ViewController().startCustomerVerification(uniqueNumber: uniqueNumbers, instance: instances);
     } else {
@@ -98,16 +101,16 @@ class IDentitySDKHelper : NSObject{
   }
   
   // 185 - Identify Customer
-  @IBAction func startIdentifyCustomers(instances: UIViewController) {
+  @objc public func startIdentifyCustomers(instances: UIViewController) {
     ViewController().startIdentifyCustomer(instance: instances);
   }
   
   // 660 - Live Face Check
-  @IBAction func startLiveFaceChecks(instances: UIViewController) {
+  @objc public func startLiveFaceChecks(instances: UIViewController) {
     ViewController().startLiveFaceCheck(instance: instances);
   }
   
-  @IBAction func submitResult(instances: UIViewController) {
+  @objc public func submitResult(instances: UIViewController) {
     ViewController().submitResult(instance: instances);
   }
   
