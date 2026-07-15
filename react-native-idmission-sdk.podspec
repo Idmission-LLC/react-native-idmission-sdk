@@ -22,14 +22,10 @@ Pod::Spec.new do |s|
   s.dependency "IDentityMediumSDK2.0"
   s.dependency "IDentityMediumModels"
 
-  # The IDmission SDK's public .swiftinterface imports these ML Kit modules
-  # (from its OCR / image-labeling / face code), so any module that imports
-  # IDentityMediumSDK must also see them — otherwise the build fails with
-  # "No such module 'MLKitTextRecognition'". This mirrors the Flutter plugin's
-  # podspec, which declares the same dependencies and builds cleanly.
+  # The IDmission SDK's public .swiftinterface imports MLKitTextRecognition,
+  # so any module that imports IDentityMediumSDK must also see it — otherwise
+  # the build fails with "No such module 'MLKitTextRecognition'".
   s.dependency "GoogleMLKit/TextRecognition"
-  s.dependency "GoogleMLKit/ImageLabeling"
-  s.dependency "GoogleMLKit/FaceDetection"
 
   # The module mixes Objective-C and Swift, so it must define a clang module
   # (this produces the `react_native_idmission_sdk-Swift.h` header imported by

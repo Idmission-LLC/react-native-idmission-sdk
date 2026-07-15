@@ -29,7 +29,6 @@ target 'IDMTest' do
   # GoogleMLKit dependencies instead.
   pod 'IDentityMediumSDK2.0', :git => 'https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git', :tag => '11.1.13.2.3'
   pod 'IDentityMediumModels', :git => 'https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git', :tag => '11.1.13.2.3'
-  pod 'GZIP', :build_type => :dynamic_framework
   pod 'GoogleMLKit/TextRecognition', :build_type => :dynamic_framework
   
   use_react_native!(
