@@ -135,8 +135,6 @@ target 'YourAppName' do
   config = use_native_modules!
 
   pod 'IDentityMediumSDK2.0'
-  pod 'IDentityMediumModels'
-  pod 'GZIP', :build_type => :dynamic_framework
   pod 'GoogleMLKit/TextRecognition', :build_type => :dynamic_framework
 
   use_react_native!(

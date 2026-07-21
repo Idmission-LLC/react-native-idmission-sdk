@@ -20,7 +20,6 @@ Pod::Spec.new do |s|
 
   # IDmission native iOS SDK
   s.dependency "IDentityMediumSDK2.0"
-  s.dependency "IDentityMediumModels"
 
   # The IDmission SDK's public .swiftinterface imports MLKitTextRecognition,
   # so any module that imports IDentityMediumSDK must also see it — otherwise

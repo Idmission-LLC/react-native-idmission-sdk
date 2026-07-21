@@ -31,7 +31,6 @@ PODS:
   - hermes-engine (0.14.0):
     - hermes-engine/Pre-built (= 0.14.0)
   - hermes-engine/Pre-built (0.14.0)
-  - IDentityMediumModels (11.1.13.2.3)
   - IDentityMediumSDK2.0 (11.1.13.2.3)
   - MLImage (1.0.0-beta8)
   - MLKitCommon (14.0.0):
@@ -1946,7 +1945,6 @@ PODS:
     - SocketRocket
   - react-native-idmission-sdk (11.1.13):
     - GoogleMLKit/TextRecognition
-    - IDentityMediumModels
     - IDentityMediumSDK2.0
     - React-Core
   - react-native-safe-area-context (5.8.0):
@@ -2721,7 +2719,6 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - GoogleMLKit/TextRecognition
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
-  - IDentityMediumModels (from `https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git`, tag `11.1.13.2.3`)
   - IDentityMediumSDK2.0 (from `https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git`, tag `11.1.13.2.3`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -2832,9 +2829,6 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-v0.14.0
-  IDentityMediumModels:
-    :git: https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git
-    :tag: 11.1.13.2.3
   IDentityMediumSDK2.0:
     :git: https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git
     :tag: 11.1.13.2.3
@@ -2988,9 +2982,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 CHECKOUT OPTIONS:
-  IDentityMediumModels:
-    :git: https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git
-    :tag: 11.1.13.2.3
   IDentityMediumSDK2.0:
     :git: https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git
     :tag: 11.1.13.2.3
@@ -3008,7 +2999,6 @@ SPEC CHECKSUMS:
   GoogleUtilities: 766ace00c6b10d8148408f329d10c4f051931850
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hermes-engine: eb95f12a57c89ba6c51326366757698593b7b4cd
-  IDentityMediumModels: a5af1c1500d2332600f202ac54a6ec3b08a1acea
   IDentityMediumSDK2.0: 47a98aa8e9fc383920309ad8e83dd7b38c68aa52
   MLImage: 0de5c6c2bf9e93b80ef752e2797f0836f03b58c0
   MLKitCommon: 47d47b50a031d00db62f1b0efe5a1d8b09a3b2e6
@@ -3053,7 +3043,7 @@ SPEC CHECKSUMS:
   React-logger: 6ac901f5c7f7321d2be1a40b203bccc2e23411e3
   React-Mapbuffer: 2e0e7cc5b7064eaed9c8b8afc3a87621cb7ef5cd
   React-microtasksnativemodule: dd4d33b251b57e5027c572c6d0b45cbfbcfaa386
-  react-native-idmission-sdk: e8cf57a8d963c7f97428f23efc660a0a30c6ba44
+  react-native-idmission-sdk: 6dbca9197f0d8588843ab9cc24d64177323a1147
   react-native-safe-area-context: 7ee594b2c2aa287757c1ba78ac70278305bc7807
   React-NativeModulesApple: 7f2f2fed3f6c858889eb61d09941be965d52df58
   React-networking: 43e5e6773ac2ca2a93261a1388fed269c9fce092
@@ -3093,6 +3083,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 5456bb010373068fc92221140921b09d126b116e
 
-PODFILE CHECKSUM: 4d638fdc262a20960864ee97096886da5d8fad86
+PODFILE CHECKSUM: 1ee0817167c17a8a015319e3d97238670d48e64e
 
 COCOAPODS: 1.13.0

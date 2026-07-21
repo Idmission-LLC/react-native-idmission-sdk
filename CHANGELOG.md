@@ -9,7 +9,8 @@
 * Bumped `idmission-mediumsdk` to 11.1.13.2.08
 
 ### iOS
-* Bumped IDentityMediumSDK2.0 / IDentityMediumModels to 11.1.13.2.3
+* Bumped IDentityMediumSDK2.0 to 11.1.13.2.3
+* Removed the bundled `IDentityMediumModels` pod to reduce app size (~21 MB smaller IPA); the ML models are no longer shipped inside the app
 
 ## 11.1.7
 
