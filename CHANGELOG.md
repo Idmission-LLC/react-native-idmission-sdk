@@ -2,11 +2,11 @@
 
 ## 11.1.13
 
-**Android native SDK: 11.1.13.2.08**
+**Android native SDK: 11.1.13.2.18**
 **iOS native SDK: 11.1.13.2.3**
 
 ### Android
-* Bumped `idmission-mediumsdk` to 11.1.13.2.08
+* Bumped `idmission-mediumsdk` to 11.1.13.2.18
 
 ### iOS
 * Bumped IDentityMediumSDK2.0 to 11.1.13.2.3

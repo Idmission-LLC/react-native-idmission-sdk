@@ -109,6 +109,8 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, '15.6'
 prepare_react_native_project!
 
+# NOTE: do NOT add `use_modular_headers!` here — it creates a circular module
+# dependency that hides the wrapper's Swift class from Objective-C.
 target 'YourAppName' do
   config = use_native_modules!
 
@@ -126,6 +128,27 @@ target 'YourAppName' do
       config[:reactNativePath],
       :mac_catalyst_enabled =&gt; false
     )
+
+    # Xcode 26 / Clang 21: disable fmt consteval, else the build fails with
+    # "Call to consteval function 'fmt::basic_format_string...'".
+    fmt_base = File.join(__dir__, 'Pods', 'fmt', 'include', 'fmt', 'base.h')
+    if File.exist?(fmt_base)
+      text = File.read(fmt_base)
+      original = "#if !defined(__cpp_lib_is_constant_evaluated)\n#  define FMT_USE_CONSTEVAL 0"
+      replacement = "#if 1 // Podfile patch: disable fmt consteval (Xcode 26 / Clang 21)\n#  define FMT_USE_CONSTEVAL 0"
+      if text.include?(original)
+        File.write(fmt_base, text.sub(original, replacement))
+      end
+    end
+
+    # Xcode 16+/26: revert to implicit modules, else the build fails with
+    # "Unable to resolve module dependency: MLKitTextRecognition".
+    # NOTE: also set "Explicitly Built Modules = No" on the app target in Xcode.
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['SWIFT_ENABLE_EXPLICIT_MODULES'] = 'NO'
+      end
+    end
   end
 end</code></pre>
                         </div>
@@ -135,7 +158,8 @@ end</code></pre>
 LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pod install
 cd ..</code></pre>
                         </div>
-                        <div class="callout"><code>GZIP</code> and <code>GoogleMLKit/TextRecognition</code> must be linked as <code>:dynamic_framework</code> (enabled by the <code>cocoapods-user-defined-build-types</code> plugin), or you will hit linker errors. The <code>LANG</code> / <code>LC_ALL</code> prefixes avoid the CocoaPods <code>Unicode Normalization</code> error on non-UTF-8 terminals.</div>
+                        <div class="callout"><code>GoogleMLKit/TextRecognition</code> must be linked as <code>:dynamic_framework</code> (enabled by the <code>cocoapods-user-defined-build-types</code> plugin), or you will hit linker errors. The <code>LANG</code> / <code>LC_ALL</code> prefixes avoid the CocoaPods <code>Unicode Normalization</code> error on non-UTF-8 terminals.</div>
+                        <div class="callout"><strong>Xcode 26 / Swift 6.3:</strong> the two <code>post_install</code> patches above are required, <em>and</em> you must set <strong>Build Settings → Explicitly Built Modules → No</strong> on your app target in Xcode. Without them the build fails with either a <code>fmt</code> consteval error or <code>Unable to resolve module dependency: MLKitTextRecognition</code>.</div>
                     </div>
                 </li>
 

@@ -1,7 +1,7 @@
 # IDmission React Native Module — Integration Guide
 
 **Package:** `react-native-idmission-sdk`
-**Android native SDK:** 11.1.13.2.08
+**Android native SDK:** 11.1.13.2.18
 **iOS native SDK:** 11.1.13.2.3
 **Minimum React Native:** 0.83
 
@@ -131,6 +131,10 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, '15.6'
 prepare_react_native_project!
 
+# NOTE: do NOT add `use_modular_headers!` here. This wrapper mixes Objective-C and
+# Swift and relies on the generated `react_native_idmission_sdk-Swift.h`; modular
+# headers create a circular module dependency that makes the Swift class invisible
+# to Objective-C ("Use of undeclared identifier 'IDentitySDKHelper'").
 target 'YourAppName' do
   config = use_native_modules!
 
@@ -148,13 +152,42 @@ target 'YourAppName' do
       config[:reactNativePath],
       :mac_catalyst_enabled => false
     )
+
+    # Fix fmt 11.0.2 build failure on Xcode 26 / Apple Clang 21:
+    # "Call to consteval function 'fmt::basic_format_string...' is not a constant
+    # expression". fmt's FMT_USE_CONSTEVAL block has no #ifndef guard, so a -D flag
+    # can't override it; force the first branch instead. Disabling consteval only
+    # moves fmt's format-string checks from compile time to runtime.
+    fmt_base = File.join(__dir__, 'Pods', 'fmt', 'include', 'fmt', 'base.h')
+    if File.exist?(fmt_base)
+      text = File.read(fmt_base)
+      original = "#if !defined(__cpp_lib_is_constant_evaluated)\n#  define FMT_USE_CONSTEVAL 0"
+      replacement = "#if 1 // Podfile patch: disable fmt consteval (Xcode 26 / Clang 21)\n#  define FMT_USE_CONSTEVAL 0"
+      if text.include?(original)
+        File.write(fmt_base, text.sub(original, replacement))
+      end
+    end
+
+    # Fix "Unable to resolve module dependency: MLKitTextRecognition / MLKitVision"
+    # on Xcode 16+/26. The IDentityMediumSDK.xcframework imports the ML Kit modules
+    # in its .swiftinterface but its podspec declares no ML Kit dependency, so the
+    # Explicitly-Built-Modules builder compiles the SDK module without ML Kit on its
+    # path. Revert to implicit modules (which search the app's framework paths).
+    # NOTE: also set "Explicitly Built Modules = No" on the app target in Xcode.
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['SWIFT_ENABLE_EXPLICIT_MODULES'] = 'NO'
+      end
+    end
   end
 end
 ```
 
 Replace `YourAppName` with your app target's name.
 
-> **Why the build-type overrides?** The IDmission SDK and its ML dependencies ship as pre-compiled frameworks. The `GZIP` and `GoogleMLKit/TextRecognition` pods must be linked as `:dynamic_framework`, which is what the `cocoapods-user-defined-build-types` plugin enables. Omitting them causes linker errors.
+> **Why the build-type override?** The IDmission SDK and its ML dependencies ship as pre-compiled frameworks. The `GoogleMLKit/TextRecognition` pod must be linked as `:dynamic_framework`, which is what the `cocoapods-user-defined-build-types` plugin enables. Omitting it causes linker errors.
+
+> **Xcode 26 / Swift 6.3 users:** the two `post_install` patches above are required, *and* you must set **Build Settings → Explicitly Built Modules → No** on your app target in Xcode. Without them the build fails with either a `fmt` consteval error or `Unable to resolve module dependency: MLKitTextRecognition`.
 
 ### 3c. Run pod install
 
@@ -345,7 +378,16 @@ Your app's `minSdkVersion` is below 26. Raise it to 26 (Step 2b).
 Run `pod repo update`, and confirm the `cocoapods-user-defined-build-types` gem is installed (`gem list | grep cocoapods-user`).
 
 ### iOS build error: `Undefined symbol` / `framework not found`
-Ensure `GZIP` and `GoogleMLKit/TextRecognition` are declared with `:build_type => :dynamic_framework` and that the `plugin 'cocoapods-user-defined-build-types'` line is present at the top of the Podfile. Re-run `pod install --repo-update`.
+Ensure `GoogleMLKit/TextRecognition` is declared with `:build_type => :dynamic_framework` and that the `plugin 'cocoapods-user-defined-build-types'` line is present at the top of the Podfile. Re-run `pod install --repo-update`.
+
+### iOS build error: `Call to consteval function 'fmt::basic_format_string...'`
+Xcode 26 / Apple Clang 21 with fmt 11.0.2. Apply the `fmt/base.h` patch in the `post_install` block (Step 3b), then re-run `pod install`.
+
+### iOS build error: `Unable to resolve module dependency: MLKitTextRecognition`
+Set `SWIFT_ENABLE_EXPLICIT_MODULES = 'NO'` via the `post_install` block (Step 3b) **and** set **Build Settings → Explicitly Built Modules → No** on your app target in Xcode.
+
+### iOS build error: `Use of undeclared identifier 'IDentitySDKHelper'`
+Remove `use_modular_headers!` from your Podfile — it creates a circular module dependency that hides the wrapper's Swift class from Objective-C.
 
 ### Camera / crash on first launch (iOS)
 All three of `NSCameraUsageDescription`, `NSMicrophoneUsageDescription`, and `NSPhotoLibraryUsageDescription` must be present in `Info.plist` (Step 3d).
