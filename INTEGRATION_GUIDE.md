@@ -27,16 +27,16 @@
 Install the module directly from git. No Google Drive download is required.
 
 ```bash
-npm install git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git#v11.1.13
+npm install git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git#v11.1.19
 ```
 
 or with Yarn:
 
 ```bash
-yarn add git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git#v11.1.13
+yarn add git+https://github.com/Idmission-LLC/react-native-idmission-sdk.git#v11.1.19
 ```
 
-The `#v11.1.13` suffix pins the install to the release tag — do not track `main`.
+The `#v11.1.19` suffix pins the install to the release tag — do not track `main`.
 
 React Native **autolinking** discovers the native module automatically; you do **not** edit `MainApplication`, register a package, or drag files into Xcode.
 
