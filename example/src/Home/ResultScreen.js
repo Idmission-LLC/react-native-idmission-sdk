@@ -1,11 +1,27 @@
 import React from 'react'
-import { View, TouchableOpacity, Text, Image } from 'react-native'
+import { View, TouchableOpacity, Text, Image, BackHandler } from 'react-native'
 import { Container, HStack, Button, Center, VStack, Pressable, Box, NativeBaseProvider, ScrollView } from "native-base";
 import * as constant from '../Constant'
 import styles from '../Styles'
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default class ResultScreen extends React.Component {
+
+    componentDidMount() {
+        this.backHandlerSubscription = BackHandler.addEventListener('hardwareBackPress', this.onHardwareBack);
+    }
+
+    componentWillUnmount() {
+        this.backHandlerSubscription?.remove();
+    }
+
+    onHardwareBack = () => {
+        if (!this.props.navigation.isFocused()) {
+            return false;
+        }
+        this.props.navigation.goBack();
+        return true;
+    }
 
     getFormattedData = (eventName, eventResponse) => {
         if (eventName !== "Data" || !eventResponse) return "";

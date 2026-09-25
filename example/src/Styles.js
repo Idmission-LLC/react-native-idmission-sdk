@@ -18,6 +18,61 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: constant.black,
     },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    headerRowStart: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+    },
+    backButton: {
+        width: 32,
+        height: 32,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 6,
+        marginLeft: -6,
+    },
+    backButtonIcon: {
+        fontSize: 22,
+        fontWeight: '600',
+        color: constant.black,
+        lineHeight: 24,
+    },
+    appBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: constant.white,
+        paddingHorizontal: 12,
+        paddingVertical: 14,
+    },
+    appBarBackButton: {
+        width: 36,
+        height: 36,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 4,
+    },
+    appBarTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: constant.black,
+    },
+    qrScanButton: {
+        borderWidth: 1.5,
+        borderColor: constant.primary,
+        borderRadius: 10,
+        paddingVertical: 8,
+        paddingHorizontal: 14,
+    },
+    qrScanButtonText: {
+        color: constant.primary,
+        fontSize: 14,
+        fontWeight: '600',
+    },
     headerSubtitle: {
         fontSize: 14,
         color: constant.slate,
@@ -51,6 +106,21 @@ const styles = StyleSheet.create({
     },
     inputGroup: {
         marginBottom: 16,
+    },
+    debugRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: constant.slateLight,
+        borderRadius: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 14,
+        marginBottom: 16,
+    },
+    debugRowLabel: {
+        fontSize: 15,
+        fontWeight: '500',
+        color: constant.black,
     },
     inputLabel: {
         fontSize: 13,

@@ -4,6 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NativeBaseProvider } from 'native-base';
 import ResultScreen from './Home/ResultScreen'
 import Home from './Home/Home'
+import IdentityServices from './Home/IdentityServices'
+import QRScanner from './Home/QRScanner'
 
 const Stack = createNativeStackNavigator();
 
@@ -12,10 +14,12 @@ function App() {
    <NativeBaseProvider>
      <NavigationContainer >
       <Stack.Navigator screenOptions={{ initialRouteName: "Home", headerShown: false }}>
-     
+
         <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="IdentityServices" component={IdentityServices} />
         <Stack.Screen name="ResultScreen" component={ResultScreen} />
-      
+        <Stack.Screen name="QRScanner" component={QRScanner} options={{ presentation: 'fullScreenModal' }} />
+
       </Stack.Navigator>
     </NavigationContainer>
    </NativeBaseProvider>

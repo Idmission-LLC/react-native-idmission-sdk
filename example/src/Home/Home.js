@@ -1,6 +1,6 @@
 import React from 'react'
-import { View, TouchableOpacity, Text, Image, Platform, StyleSheet as RNStyleSheet, Modal, ActivityIndicator } from 'react-native'
-import { ScrollView, Picker, NativeBaseProvider, Center, VStack, Pressable, Spinner } from "native-base";
+import { View, TouchableOpacity, Text, Modal, Switch } from 'react-native'
+import { ScrollView, NativeBaseProvider, Spinner } from "native-base";
 import * as constant from '../Constant'
 import styles from '../Styles'
 import { IDMissionSDK, addDataCallbackListener } from 'react-native-idmission-sdk';
@@ -12,34 +12,52 @@ LogBox.ignoreLogs(['new NativeEventEmitter']);
 LogBox.ignoreLogs(['Warning: ...']);
 LogBox.ignoreAllLogs();
 
+// Maps the "URL" field embedded in a configuration QR code to the matching
+// API Base URL, mirroring the environment lookup used by the native sample
+// app's Settings screen (kyc-uk / kyc-us checked before the generic "kyc"
+// substring, since both contain it).
+const deriveApiBaseUrlFromQrUrl = (url) => {
+    const u = (url || '').toLowerCase();
+    if (!u) return null;
+    if (u.includes('kyc-uk')) return 'https://identity.london.idmission.xyz/identity/';
+    if (u.includes('kyc-us')) return 'https://identity.virginia.idmission.xyz/identity/';
+    if (u.includes('demo')) return 'https://apidemo.idmission.com/';
+    if (u.includes('uat')) return 'https://apiuat.idmission.com/';
+    if (u.includes('lab')) return 'https://apilab.idmission.com/';
+    if (u.includes('kyc')) return 'https://api.idmission.com/';
+    return null;
+}
+
 export default class Home extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            selected: '?',
-            images: '?',
-            uniqueCustomerNumber: '?',
-            apiBaseUrl: '?',
-            authUrl: '?',
-            debug: '?',
+            apiBaseUrl: '',
+            authUrl: '',
+            debugMode: false,
             accessToken: '',
             loginId: '',
             password: '',
             clientId: '',
             clientSecret: '',
-            tokenError: null,
+            initError: null,
             isLoading: false,
-            event: [
-                "Select Feature"
-            ]
         }
     }
 
     componentDidMount() {
+        // While on this page, every DataCallback event is the result of the
+        // initializeSDK() call — service/submit events are only handled once
+        // the Identity Services page (and its own listener) is mounted.
         this.subscription = addDataCallbackListener((event) => {
             console.log("Response " + JSON.stringify(event))
-            this.setState({ isLoading: false });
-            this.props.navigation.navigate("ResultScreen", { eventResponse: event, eventName: "Data" })
+            const succeeded = (event?.data || '').toLowerCase().includes('success');
+            if (succeeded) {
+                this.setState({ isLoading: false, initError: null });
+                this.props.navigation.replace("IdentityServices");
+            } else {
+                this.setState({ isLoading: false, initError: event?.data || 'SDK initialization failed.' });
+            }
         });
     }
 
@@ -64,104 +82,75 @@ export default class Home extends React.Component {
         return `${scheme}${labels.join('.')}/auth/realms/identity/protocol/openid-connect/token`;
     }
 
-    generateToken = async () => {
-        this.setState({ isLoading: true, tokenError: null });
+    fetchAccessToken = async (tokenUrl) => {
+        const form = {
+            grant_type: 'password',
+            client_id: this.state.clientId,
+            client_secret: this.state.clientSecret,
+            username: this.state.loginId,
+            password: this.state.password,
+            scope: 'api_access',
+        };
+        const body = Object.entries(form)
+            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+            .join('&');
+
+        const response = await fetch(tokenUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body,
+        });
+        const json = await response.json().catch(() => ({}));
+
+        if (!response.ok || !json.access_token) {
+            const message =
+                json.error_description ||
+                json.error ||
+                `Token request failed (HTTP ${response.status})`;
+            throw new Error(message);
+        }
+        return json.access_token;
+    }
+
+    onInit = async () => {
+        this.setState({ isLoading: true, initError: null });
         try {
             const tokenUrl = this.deriveTokenUrl(this.state.apiBaseUrl);
             if (!tokenUrl) {
-                throw new Error('Enter a valid API Base URL before generating a token.');
+                throw new Error('Enter a valid API Base URL before initializing.');
             }
-
-            const form = {
-                grant_type: 'password',
-                client_id: this.state.clientId,
-                client_secret: this.state.clientSecret,
-                username: this.state.loginId,
-                password: this.state.password,
-                scope: 'api_access',
-            };
-            const body = Object.entries(form)
-                .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-                .join('&');
-
-            const response = await fetch(tokenUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body,
-            });
-            const json = await response.json().catch(() => ({}));
-
-            if (!response.ok || !json.access_token) {
-                const message =
-                    json.error_description ||
-                    json.error ||
-                    `Token request failed (HTTP ${response.status})`;
-                throw new Error(message);
-            }
-
-            this.setState({ accessToken: json.access_token, isLoading: false });
+            const accessToken = await this.fetchAccessToken(tokenUrl);
+            this.setState({ accessToken });
+            IDMissionSDK.initializeSDK(
+                this.state.apiBaseUrl,
+                tokenUrl,
+                this.state.debugMode ? 'y' : 'n',
+                accessToken
+            );
+            // isLoading stays true here — the DataCallback listener above
+            // resolves it once the native initializeSDK() call completes.
         } catch (error) {
             this.setState({
                 isLoading: false,
-                tokenError: error.message || 'Token generation failed.',
+                initError: error.message || 'SDK initialization failed.',
             });
         }
     }
 
-    onInit = () => {
-        this.setState({ isLoading: true });
-        IDMissionSDK.initializeSDK(
-            this.state.apiBaseUrl,
-            this.deriveTokenUrl(this.state.apiBaseUrl) || this.state.authUrl,
-            this.state.debug,
-            this.state.accessToken
-        );
+    openScanner = () => {
+        this.props.navigation.navigate('QRScanner', { onScanned: this.handleQrScanned });
     }
 
-    onServiceID20 = () => {
-        this.setState({ isLoading: true });
-        IDMissionSDK.serviceID20();
-    }
-
-    onServiceID10 = () => {
-        this.setState({ isLoading: true });
-        IDMissionSDK.serviceID10();
-    }
-
-    onServiceID50 = () => {
-        this.setState({ isLoading: true });
-        IDMissionSDK.serviceID50(this.state.uniqueCustomerNumber);
-    }
-
-    onServiceID175 = () => {
-        this.setState({ isLoading: true });
-        IDMissionSDK.serviceID175(this.state.uniqueCustomerNumber);
-    }
-
-    onServiceID105 = () => {
-        this.setState({ isLoading: true });
-        IDMissionSDK.serviceID105(this.state.uniqueCustomerNumber);
-    }
-
-    onServiceID185 = () => {
-        this.setState({ isLoading: true });
-        IDMissionSDK.serviceID185();
-    }
-
-    onServiceID660 = () => {
-        this.setState({ isLoading: true });
-        IDMissionSDK.serviceID660();
-    }
-
-    onSubmit = () => {
-        this.setState({ isLoading: true });
-        IDMissionSDK.submitResult();
-    }
-
-    saveUniqueCustomerNumber = (text) => {
+    handleQrScanned = (data) => {
+        const apiBaseUrl = deriveApiBaseUrlFromQrUrl(data?.URL);
         this.setState({
-            uniqueCustomerNumber: text
-        })
+            apiBaseUrl: apiBaseUrl || this.state.apiBaseUrl,
+            loginId: data?.LoginId != null ? String(data.LoginId) : this.state.loginId,
+            password: data?.Password != null ? String(data.Password) : this.state.password,
+            clientId: data?.ClientId != null ? String(data.ClientId) : this.state.clientId,
+            clientSecret: data?.ClientSecret != null ? String(data.ClientSecret) : this.state.clientSecret,
+            initError: null,
+        });
     }
 
     saveApiBaseUrl = (text) => {
@@ -176,16 +165,8 @@ export default class Home extends React.Component {
         })
     }
 
-    saveDebug = (text) => {
-        this.setState({
-            debug: text
-        })
-    }
-
-    saveAccessToken = (text) => {
-        this.setState({
-            accessToken: text
-        })
+    toggleDebugMode = () => {
+        this.setState((prevState) => ({ debugMode: !prevState.debugMode }));
     }
 
     saveLoginId = (text) => {
@@ -264,55 +245,43 @@ export default class Home extends React.Component {
             <NativeBaseProvider>
                 <SafeAreaView style={styles.container}>
                     <View style={styles.header}>
-                        <Text style={styles.headerTitle}>Identity React</Text>
+                        <View style={styles.headerRow}>
+                            <Text style={styles.headerTitle}>Identity React</Text>
+                            <TouchableOpacity
+                                style={styles.qrScanButton}
+                                onPress={this.openScanner}
+                                activeOpacity={0.7}
+                            >
+                                <Text style={styles.qrScanButtonText}>Scan QR</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
                     {this.renderLoader()}
 
                     <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>SDK Configuration</Text>
-                        </View>
-                        <View style={styles.card}>
-                            {this.renderInput("API Base URL", "https://api.idmission.com", (text) => this.saveApiBaseUrl(text))}
+                        <View style={[styles.card, { marginTop: 20 }]}>
+                            {this.renderInput("API Base URL", "https://api.idmission.com", (text) => this.saveApiBaseUrl(text), { value: this.state.apiBaseUrl })}
 
-                            {this.renderInput("Login ID", "Login ID (username)", (text) => this.saveLoginId(text))}
-                            {this.renderInput("Password", "Password", (text) => this.savePassword(text), { secure: true })}
-                            {this.renderInput("Client ID", "Client ID", (text) => this.saveClientId(text))}
-                            {this.renderInput("Client Secret", "Client Secret", (text) => this.saveClientSecret(text), { secure: true })}
+                            {this.renderInput("Login ID", "Login ID (username)", (text) => this.saveLoginId(text), { value: this.state.loginId })}
+                            {this.renderInput("Password", "Password", (text) => this.savePassword(text), { secure: true, value: this.state.password })}
+                            {this.renderInput("Client ID", "Client ID", (text) => this.saveClientId(text), { value: this.state.clientId })}
+                            {this.renderInput("Client Secret", "Client Secret", (text) => this.saveClientSecret(text), { secure: true, value: this.state.clientSecret })}
 
-                            {this.renderButton("Generate Token", () => this.generateToken(), true)}
-                            {this.state.tokenError ? (
-                                <Text style={styles.tokenErrorText}>{this.state.tokenError}</Text>
-                            ) : null}
-
-                            {this.renderInput("Access Token", "Generate above, or paste manually", (text) => this.saveAccessToken(text), { value: this.state.accessToken })}
-                            {this.renderInput("Debug Mode", "y or n", (text) => this.saveDebug(text))}
-                            {this.renderInput("Unique Customer Number", "Unique Customer Number", (text) => this.saveUniqueCustomerNumber(text))}
+                            <View style={styles.debugRow}>
+                                <Text style={styles.debugRowLabel}>Enable Debug Mode</Text>
+                                <Switch
+                                    value={this.state.debugMode}
+                                    onValueChange={() => this.toggleDebugMode()}
+                                    trackColor={{ false: '#D9DEE4', true: constant.primary }}
+                                    thumbColor="#FFFFFF"
+                                />
+                            </View>
 
                             {this.renderButton("Initialize SDK", () => this.onInit())}
-                        </View>
-
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Identity Services</Text>
-                        </View>
-                        <View style={styles.card}>
-                            {this.renderButton("ID Validation", () => this.onServiceID20(), true)}
-                            {this.renderButton("ID + Match Face", () => this.onServiceID10(), true)}
-                            {this.renderButton("Identify Customer", () => this.onServiceID185(), true)}
-                            {this.renderButton("Customer Verification", () => this.onServiceID105(), true)}
-                            {this.renderButton("Live Face Check", () => this.onServiceID660(), true)}
-                            {this.renderButton("ID + Customer Enroll", () => this.onServiceID50(), true)}
-                            {this.renderButton("Enroll Biometrics", () => this.onServiceID175(), true)}
-                        </View>
-
-                        <View style={{ paddingHorizontal: 16 }}>
-                            <TouchableOpacity
-                                style={[styles.actionButton, styles.submitButton]}
-                                onPress={() => this.onSubmit()}
-                            >
-                                <Text style={styles.actionButtonText}>Submit Result</Text>
-                            </TouchableOpacity>
+                            {this.state.initError ? (
+                                <Text style={styles.tokenErrorText}>{this.state.initError}</Text>
+                            ) : null}
                         </View>
                     </ScrollView>
                 </SafeAreaView>
