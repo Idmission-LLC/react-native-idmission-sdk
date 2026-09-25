@@ -1,7 +1,7 @@
 # IDmission React Native Module — Integration Guide
 
 **Package:** `react-native-idmission-sdk`
-**Android native SDK:** 11.1.13.2.18
+**Android native SDK:** 11.1.19.2.05
 **iOS native SDK:** 11.1.13.2.3
 **Minimum React Native:** 0.83
 

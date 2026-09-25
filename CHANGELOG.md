@@ -1,5 +1,12 @@
 # Changelog
 
+## 11.1.19
+
+**Android native SDK: 11.1.19.2.05**
+
+### Android
+* Bumped `idmission-mediumsdk` to 11.1.19.2.05
+
 ## 11.1.13
 
 **Android native SDK: 11.1.13.2.18**
