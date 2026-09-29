@@ -10,13 +10,20 @@ const LINKING_ERROR =
  * Native module bridge. Exposes the IDmission IDentity SDK service flows.
  *
  * Method signatures mirror the native implementation:
+ *   setSDKOptions({ enableGPS, geolocationRequired, enableScreenRecording })
  *   initializeSDK(apiBaseUrl, authUrl, debug, accessToken)
  *   serviceID20() / serviceID10() / serviceID185() / serviceID660()
  *   serviceID50(uniqueCustomerNumber) / serviceID175(uniqueCustomerNumber) / serviceID105(uniqueCustomerNumber)
  *   submitResult()
+ *   getSDKInfo() -> Promise<{ version: string, models: { name: string, value: string }[] }>
  *
- * Results are delivered asynchronously through the `DataCallback` event
- * (see {@link addDataCallbackListener}).
+ * setSDKOptions() is optional; call it before initializeSDK() for the options
+ * to take effect (defaults: enableGPS true, geolocationRequired false,
+ * enableScreenRecording false). getSDKInfo() returns an empty `models` list
+ * until the SDK has been initialized.
+ *
+ * Results of initializeSDK / service / submit calls are delivered
+ * asynchronously through the `DataCallback` event (see {@link addDataCallbackListener}).
  */
 export const IDMissionSDK = NativeModules.IDMissionSDK
   ? NativeModules.IDMissionSDK

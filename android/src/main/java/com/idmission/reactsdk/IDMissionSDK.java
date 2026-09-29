@@ -9,8 +9,11 @@ import androidx.annotation.Nullable;
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.idmission.sdk2.capture.IdMissionCaptureLauncher;
@@ -42,6 +45,7 @@ import com.idmission.sdk2.client.model.TextMatchResultResponse;
 import com.idmission.sdk2.client.model.WlsResultResponse;
 import com.idmission.sdk2.identityproofing.IdentityProofingSDK;
 import com.idmission.sdk2.utils.LANGUAGE;
+import com.idmission.sdk2.utils.TrainingModelDetailsUtils;
 import com.idmission.sdk2.client.model.CustomerDataMatchResult;
 import com.idmission.sdk2.client.model.DocumentTamper;
 import com.idmission.sdk2.client.model.ExtractedPOAData;
@@ -58,6 +62,11 @@ public class IDMissionSDK extends ReactContextBaseJavaModule implements Activity
     String ApiBaseUrl,AuthUrl = "https://api.idmission.com/";
     String AccessToken = "";
     boolean IsDebug = false;
+    // Options set from JS via setSDKOptions(); applied on the next initializeSDK().
+    // Defaults match the native IDentity app.
+    boolean IsGpsEnabled = true;
+    boolean IsGeolocationRequired = false;
+    boolean IsScreenRecordingEnabled = false;
     ReactApplicationContext reactContext;
 
     //constructor
@@ -86,6 +95,51 @@ public class IDMissionSDK extends ReactContextBaseJavaModule implements Activity
 
         AccessToken = accessToken;
         new BackgroundTask().execute();
+    }
+
+    @ReactMethod
+    public void setSDKOptions(ReadableMap options) {
+        if (options.hasKey("enableGPS")) IsGpsEnabled = options.getBoolean("enableGPS");
+        if (options.hasKey("geolocationRequired")) IsGeolocationRequired = options.getBoolean("geolocationRequired");
+        if (options.hasKey("enableScreenRecording")) IsScreenRecordingEnabled = options.getBoolean("enableScreenRecording");
+    }
+
+    // SDK version plus the ML model file names in use. Model names are empty
+    // until the SDK has been initialized (models are downloaded on init).
+    @ReactMethod
+    public void getSDKInfo(Promise promise) {
+        try {
+            WritableMap info = Arguments.createMap();
+            info.putString("version", IdentityProofingSDK.getSDKVersion());
+
+            WritableArray models = Arguments.createArray();
+            try {
+                TrainingModelDetailsUtils m = IdentityProofingSDK.getSDKModelsInfo(getReactApplicationContext());
+                addModel(models, "Face Detector", m.getFaceFullRangeSparseTrainingModel());
+                addModel(models, "Face Landmarks", m.getFaceLandmarksTrainingModel());
+                addModel(models, "Face BlendedShapes", m.getFaceBlendshapesTrainingModel());
+                addModel(models, "Liveness", m.getFaceLiveNessTrainingModel());
+                addModel(models, "Focus Face", m.getFocusFaceTrainingModel());
+                addModel(models, "Face Mask", m.getFaceMaskTrainingModel());
+                addModel(models, "Focus", m.getIdFocusTrainingModel());
+                addModel(models, "Doc Realness", m.getDocRealnessTrainingModel());
+                addModel(models, "Doc Detection", m.getDocDetectTrainingModel());
+            } catch (Exception e) {
+                // Model details are unavailable before the SDK has been initialized.
+            }
+            info.putArray("models", models);
+            promise.resolve(info);
+        } catch (Exception e) {
+            promise.reject("SDK_INFO_ERROR", e);
+        }
+    }
+
+    private void addModel(WritableArray models, String name, @Nullable String value) {
+        if (StringUtils.isEmpty(value)) return;
+        WritableMap model = Arguments.createMap();
+        model.putString("name", name);
+        model.putString("value", value);
+        models.pushMap(model);
     }
 
     @ReactMethod
@@ -227,12 +281,14 @@ public class IDMissionSDK extends ReactContextBaseJavaModule implements Activity
                     CameraOrientation.PORTRAIT,
                     IsDebug
             );
+            sco.setScreenRecordingEnabled(IsScreenRecordingEnabled);
+            sco.setGeolocationRequired(IsGeolocationRequired);
 
             Response<InitializeResponse> response =
                     IdentityProofingSDK.initialize(getReactApplicationContext().getCurrentActivity(),
                             ApiBaseUrl,
                             IsDebug,
-                            true,
+                            IsGpsEnabled,
                             sco,
                             true,
                             AccessToken);

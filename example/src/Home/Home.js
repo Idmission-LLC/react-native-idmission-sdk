@@ -7,10 +7,20 @@ import { IDMissionSDK, addDataCallbackListener } from 'react-native-idmission-sd
 import { TextInput } from "react-native";
 import { LogBox } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 LogBox.ignoreLogs(['new NativeEventEmitter']);
 LogBox.ignoreLogs(['Warning: ...']);
 LogBox.ignoreAllLogs();
+
+// Settings are persisted only after a successful SDK initialization, so the
+// last working configuration (typed or scanned from a QR code) is restored
+// when returning to this screen or relaunching the app.
+const SETTINGS_STORAGE_KEY = 'idmission.settings';
+const PERSISTED_FIELDS = [
+    'apiBaseUrl', 'loginId', 'password', 'clientId', 'clientSecret',
+    'debugMode', 'screenRecording', 'gpsEnabled', 'geolocationRequired',
+];
 
 // Maps the "URL" field embedded in a configuration QR code to the matching
 // API Base URL, mirroring the environment lookup used by the native sample
@@ -35,6 +45,12 @@ export default class Home extends React.Component {
             apiBaseUrl: '',
             authUrl: '',
             debugMode: false,
+            // Defaults match the native IDentity app.
+            screenRecording: false,
+            gpsEnabled: true,
+            geolocationRequired: false,
+            sdkVersion: '',
+            sdkModels: [],
             accessToken: '',
             loginId: '',
             password: '',
@@ -46,6 +62,8 @@ export default class Home extends React.Component {
     }
 
     componentDidMount() {
+        this.loadSettings();
+        this.loadSdkInfo();
         // While on this page, every DataCallback event is the result of the
         // initializeSDK() call — service/submit events are only handled once
         // the Identity Services page (and its own listener) is mounted.
@@ -54,6 +72,7 @@ export default class Home extends React.Component {
             const succeeded = (event?.data || '').toLowerCase().includes('success');
             if (succeeded) {
                 this.setState({ isLoading: false, initError: null });
+                this.saveSettings();
                 this.props.navigation.replace("IdentityServices");
             } else {
                 this.setState({ isLoading: false, initError: event?.data || 'SDK initialization failed.' });
@@ -63,6 +82,40 @@ export default class Home extends React.Component {
 
     componentWillUnmount() {
         this.subscription?.remove();
+    }
+
+    loadSettings = async () => {
+        try {
+            const saved = JSON.parse(await AsyncStorage.getItem(SETTINGS_STORAGE_KEY));
+            if (saved) {
+                const restored = {};
+                PERSISTED_FIELDS.forEach((key) => {
+                    if (saved[key] !== undefined) restored[key] = saved[key];
+                });
+                this.setState(restored);
+            }
+        } catch (e) {
+            console.log('Failed to load saved settings', e);
+        }
+    }
+
+    saveSettings = async () => {
+        const settings = {};
+        PERSISTED_FIELDS.forEach((key) => { settings[key] = this.state[key]; });
+        try {
+            await AsyncStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+        } catch (e) {
+            console.log('Failed to save settings', e);
+        }
+    }
+
+    loadSdkInfo = async () => {
+        try {
+            const info = await IDMissionSDK.getSDKInfo();
+            this.setState({ sdkVersion: info?.version || '', sdkModels: info?.models || [] });
+        } catch (e) {
+            console.log('Failed to read SDK info', e);
+        }
     }
 
     // Derive the auth/token endpoint from the captured API Base URL.
@@ -121,6 +174,11 @@ export default class Home extends React.Component {
             }
             const accessToken = await this.fetchAccessToken(tokenUrl);
             this.setState({ accessToken });
+            IDMissionSDK.setSDKOptions({
+                enableScreenRecording: this.state.screenRecording,
+                enableGPS: this.state.gpsEnabled,
+                geolocationRequired: this.state.geolocationRequired,
+            });
             IDMissionSDK.initializeSDK(
                 this.state.apiBaseUrl,
                 tokenUrl,
@@ -165,8 +223,8 @@ export default class Home extends React.Component {
         })
     }
 
-    toggleDebugMode = () => {
-        this.setState((prevState) => ({ debugMode: !prevState.debugMode }));
+    toggleSetting = (key) => {
+        this.setState((prevState) => ({ [key]: !prevState[key] }));
     }
 
     saveLoginId = (text) => {
@@ -211,7 +269,7 @@ export default class Home extends React.Component {
     );
 
     renderInput = (label, placeholder, onChangeText, options = {}) => (
-        <View style={styles.inputGroup}>
+        <View style={[styles.inputGroup, options.style]}>
             <Text style={styles.inputLabel}>{label}</Text>
             <View style={styles.inputWrapper}>
                 <TextInput
@@ -225,6 +283,36 @@ export default class Home extends React.Component {
                     {...(options.value !== undefined ? { value: options.value } : {})}
                 />
             </View>
+        </View>
+    );
+
+    renderSwitch = (label, key) => (
+        <View style={styles.debugRow}>
+            <Text style={styles.debugRowLabel}>{label}</Text>
+            <Switch
+                value={this.state[key]}
+                onValueChange={() => this.toggleSetting(key)}
+                trackColor={{ false: '#D9DEE4', true: constant.primary }}
+                thumbColor="#FFFFFF"
+            />
+        </View>
+    );
+
+    renderSdkInfo = () => (
+        <View style={styles.sdkInfoCard}>
+            <Text style={styles.sdkInfoTitle}>SDK Version</Text>
+            <Text style={styles.sdkInfoValue}>{this.state.sdkVersion || '-'}</Text>
+            <Text style={styles.sdkInfoTitle}>Models</Text>
+            {this.state.sdkModels.length > 0 ? (
+                this.state.sdkModels.map((model) => (
+                    <View key={model.name}>
+                        <Text style={styles.sdkInfoTitle}>{model.name} Model</Text>
+                        <Text style={styles.sdkInfoValue}>{model.value}</Text>
+                    </View>
+                ))
+            ) : (
+                <Text style={styles.sdkInfoEmpty}>Available after the SDK is initialized.</Text>
+            )}
         </View>
     );
 
@@ -263,25 +351,26 @@ export default class Home extends React.Component {
                         <View style={[styles.card, { marginTop: 20 }]}>
                             {this.renderInput("API Base URL", "https://api.idmission.com", (text) => this.saveApiBaseUrl(text), { value: this.state.apiBaseUrl })}
 
-                            {this.renderInput("Login ID", "Login ID (username)", (text) => this.saveLoginId(text), { value: this.state.loginId })}
-                            {this.renderInput("Password", "Password", (text) => this.savePassword(text), { secure: true, value: this.state.password })}
-                            {this.renderInput("Client ID", "Client ID", (text) => this.saveClientId(text), { value: this.state.clientId })}
-                            {this.renderInput("Client Secret", "Client Secret", (text) => this.saveClientSecret(text), { secure: true, value: this.state.clientSecret })}
-
-                            <View style={styles.debugRow}>
-                                <Text style={styles.debugRowLabel}>Enable Debug Mode</Text>
-                                <Switch
-                                    value={this.state.debugMode}
-                                    onValueChange={() => this.toggleDebugMode()}
-                                    trackColor={{ false: '#D9DEE4', true: constant.primary }}
-                                    thumbColor="#FFFFFF"
-                                />
+                            <View style={styles.inputRow}>
+                                {this.renderInput("Login ID", "Login ID", (text) => this.saveLoginId(text), { value: this.state.loginId, style: styles.inputRowItem })}
+                                {this.renderInput("Password", "Password", (text) => this.savePassword(text), { secure: true, value: this.state.password, style: styles.inputRowItem })}
                             </View>
+                            <View style={styles.inputRow}>
+                                {this.renderInput("Client ID", "Client ID", (text) => this.saveClientId(text), { value: this.state.clientId, style: styles.inputRowItem })}
+                                {this.renderInput("Client Secret", "Client Secret", (text) => this.saveClientSecret(text), { secure: true, value: this.state.clientSecret, style: styles.inputRowItem })}
+                            </View>
+
+                            {this.renderSwitch("Enable Debug Mode", "debugMode")}
+                            {this.renderSwitch("Enable Screen Recording", "screenRecording")}
+                            {this.renderSwitch("Enable GPS Location", "gpsEnabled")}
+                            {this.renderSwitch("Geolocation Required", "geolocationRequired")}
 
                             {this.renderButton("Initialize SDK", () => this.onInit())}
                             {this.state.initError ? (
                                 <Text style={styles.tokenErrorText}>{this.state.initError}</Text>
                             ) : null}
+
+                            {this.renderSdkInfo()}
                         </View>
                     </ScrollView>
                 </SafeAreaView>

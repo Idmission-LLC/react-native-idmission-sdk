@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, Platform } from 'react-native'
 import * as constant from './Constant'
 const styles = StyleSheet.create({
 
@@ -107,6 +107,13 @@ const styles = StyleSheet.create({
     inputGroup: {
         marginBottom: 16,
     },
+    inputRow: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    inputRowItem: {
+        flex: 1,
+    },
     debugRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -164,6 +171,28 @@ const styles = StyleSheet.create({
     },
     actionButtonTextSecondary: {
         color: constant.primary,
+    },
+    sdkInfoCard: {
+        backgroundColor: constant.slateLight,
+        borderRadius: 10,
+        padding: 14,
+        marginTop: 16,
+    },
+    sdkInfoTitle: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: constant.slate,
+        marginBottom: 4,
+    },
+    sdkInfoValue: {
+        fontSize: 14,
+        color: constant.black,
+        marginBottom: 12,
+    },
+    sdkInfoEmpty: {
+        fontSize: 13,
+        color: constant.slate,
+        fontStyle: 'italic',
     },
     tokenErrorText: {
         color: constant.error,

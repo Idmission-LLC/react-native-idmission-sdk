@@ -7,7 +7,43 @@ import IDCaptureMedium
 // so Swift only emits *public* @objc declarations into the generated
 // `react_native_idmission_sdk-Swift.h` that IDMissionSDK.m imports.
 @objc public class IDentitySDKHelper : NSObject{
-  
+
+  // Options set from JS via setSDKOptions(); applied on the next initializeSDK().
+  // Defaults match the native IDentity app.
+  private static var isGPSEnabled = true
+  private static var isGeolocationRequired = false
+  private static var isScreenRecordingEnabled = false
+
+  @objc public static func setOptions(_ options: NSDictionary) {
+    if let value = options["enableGPS"] as? Bool { isGPSEnabled = value }
+    if let value = options["geolocationRequired"] as? Bool { isGeolocationRequired = value }
+    if let value = options["enableScreenRecording"] as? Bool { isScreenRecordingEnabled = value }
+  }
+
+  // SDK version plus the ML model file names in use. Model names are empty
+  // until the SDK has been initialized (models are downloaded on init).
+  @objc public static func sdkInfo() -> NSDictionary {
+    let models: [(String, String)] = [
+      ("Face Detector", IDentitySDK.faceDetectorModelName),
+      ("Face Landmarks", IDentitySDK.faceLandmarkModelName),
+      ("Face BlendedShapes", IDentitySDK.faceBlendedShapesModelName),
+      ("Liveness", IDentitySDK.livenessModelName),
+      ("Focus Face", IDentitySDK.focusFaceModelName),
+      ("Face Mask", IDentitySDK.faceMaskModelName),
+      ("Focus", IDentitySDK.focusModelName),
+      ("Doc Realness", IDentitySDK.docRealnessModelName),
+      ("Doc Detection", IDentitySDK.docDetectionModelName),
+      ("PaddleOCR Detection", IDentitySDK.paddleOCRDetectionModelName),
+      ("PaddleOCR Recognition", IDentitySDK.paddleOCRRecognitionModelName),
+    ]
+    return [
+      "version": IDentitySDK.version,
+      "models": models
+        .filter { !$0.1.isEmpty }
+        .map { ["name": $0.0, "value": $0.1] },
+    ]
+  }
+
   @objc public func initializeSDK(data: NSDictionary, instances: UIViewController) {
     IDCapture.options.enableInstructionScreen = false
     SelfieCapture.options.enableInstructionScreen = false
@@ -49,7 +85,8 @@ import IDCaptureMedium
     UserDefaults.standard.set(defaultAuthUrl, forKey: "authenticationURL")
     
     IDentitySDK.apiBaseUrl = UserDefaults.standard.string(forKey: "apiBaseUrl") ?? ""
-      IDentitySDK.initializeSDK(language: UserDefaults.SDKlanguage, isUpdateModelsData: UserDefaults.isUpdateModelData, accessToken: UserDefaults.accessToken) { error in
+      IDentitySDK.isScreenRecordingEnabled(Self.isScreenRecordingEnabled)
+      IDentitySDK.initializeSDK(language: UserDefaults.SDKlanguage, isGPSEnabled: Self.isGPSEnabled, geolocationRequired: Self.isGeolocationRequired, isUpdateModelsData: UserDefaults.isUpdateModelData, accessToken: UserDefaults.accessToken) { error in
           if let error = error {
               print("!!! initialize SDK ERROR: \(error.localizedDescription)")
               self.sendData(text: "Error")

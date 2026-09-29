@@ -204,6 +204,15 @@ subscription.remove();</code></pre>
 
             <div class="api-functions">
                 <div class="api-fn">
+                    <div class="api-fn-header"><span class="api-badge">Init</span><span class="api-fn-name">IDMissionSDK.setSDKOptions</span></div>
+                    <div class="api-fn-body"><p>Optional. Sets SDK options; call it <strong>before</strong> <code>initializeSDK</code>. Omitted keys keep their defaults.</p>
+                        <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.setSDKOptions({
+  enableGPS: true,              // capture GPS location with submissions (default true)
+  geolocationRequired: false,   // block the flow if location access is denied (default false)
+  enableScreenRecording: false  // allow screen recording / screenshots (default false)
+});</code></pre></div></div>
+                </div>
+                <div class="api-fn">
                     <div class="api-fn-header"><span class="api-badge">Init</span><span class="api-fn-name">IDMissionSDK.initializeSDK</span></div>
                     <div class="api-fn-body"><p>Initializes the SDK. Must be called before any other function.</p>
                         <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.initializeSDK(
@@ -212,6 +221,12 @@ subscription.remove();</code></pre>
   debug,        // string — 'y' enables verbose logging, 'n' disables it
   accessToken   // string — your IDmission access token
 );</code></pre></div></div>
+                </div>
+                <div class="api-fn">
+                    <div class="api-fn-header"><span class="api-badge">Info</span><span class="api-fn-name">IDMissionSDK.getSDKInfo</span></div>
+                    <div class="api-fn-body"><p>Returns a Promise with the native SDK version and the ML model names in use. <code>models</code> is empty until the SDK has been initialized.</p>
+                        <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>const { version, models } = await IDMissionSDK.getSDKInfo();
+// models: [{ name: 'Face Detector', value: 'face_detection_full_range_sparse.tflite' }, ...]</code></pre></div></div>
                 </div>
                 <div class="api-fn">
                     <div class="api-fn-header"><span class="api-badge">Service</span><span class="api-fn-name">IDMissionSDK.serviceID20</span></div>

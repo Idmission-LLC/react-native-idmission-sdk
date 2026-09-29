@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, PermissionsAndroid, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, PermissionsAndroid, Platform, StatusBar } from 'react-native';
 import { Camera } from 'react-native-camera-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -45,17 +45,27 @@ export default function QRScanner({ navigation, route }) {
     }, [scanned, navigation, route]);
 
     return (
-        <SafeAreaView style={styles.container} edges={['top']}>
+        <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+            <StatusBar barStyle="light-content" />
+            {/* Header sits above the camera (not overlaid by it) so Cancel
+                receives touches; the title is centred across the full width
+                with Cancel on the left and an equal-width spacer on the right. */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7}>
-                    <Text style={styles.backText}>{'< Cancel'}</Text>
+                <TouchableOpacity
+                    style={styles.headerSide}
+                    onPress={() => navigation.goBack()}
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                    <Text style={styles.backText}>Cancel</Text>
                 </TouchableOpacity>
-                <Text style={styles.title}>Scan Configuration QR Code</Text>
+                <Text style={styles.title} numberOfLines={1}>Scan QR Code</Text>
+                <View style={styles.headerSide} />
             </View>
 
             {hasPermission ? (
                 <Camera
-                    style={StyleSheet.absoluteFill}
+                    style={styles.camera}
                     scanBarcode={true}
                     onReadCode={handleReadCode}
                     showFrame={true}
@@ -84,20 +94,29 @@ const styles = StyleSheet.create({
         backgroundColor: '#000',
     },
     header: {
-        paddingHorizontal: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
         paddingVertical: 14,
-        backgroundColor: 'rgba(15, 23, 42, 0.75)',
+        backgroundColor: '#0F172A',
+    },
+    headerSide: {
+        width: 70,
     },
     backText: {
         color: '#FFFFFF',
         fontSize: 16,
         fontWeight: '600',
-        marginBottom: 8,
     },
     title: {
+        flex: 1,
         color: '#FFFFFF',
-        fontSize: 16,
+        fontSize: 17,
         fontWeight: '600',
+        textAlign: 'center',
+    },
+    camera: {
+        flex: 1,
     },
     center: {
         flex: 1,

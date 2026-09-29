@@ -13,6 +13,11 @@
 * Removed the `GoogleMLKit/TextRecognition` dependency — the iOS SDK no longer uses Google ML Kit (21 fewer pods)
 * The `cocoapods-user-defined-build-types` plugin and the `SWIFT_ENABLE_EXPLICIT_MODULES = NO` workaround are no longer required
 
+### React Native wrapper
+* Added `setSDKOptions({ enableGPS, geolocationRequired, enableScreenRecording })` to configure GPS capture, mandatory geolocation and screen recording before `initializeSDK`
+* Added `getSDKInfo()`, returning the native SDK version and the ML model names in use
+* Example app: Settings screen matches the native IDentity app (paired fields, new option switches, SDK version and model list), settings persist after a successful initialization, and the QR scanner header is fixed on iOS
+
 ## 11.1.13
 
 **Android native SDK: 11.1.13.2.18**

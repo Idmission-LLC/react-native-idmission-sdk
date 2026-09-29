@@ -230,6 +230,28 @@ IDMissionSDK.initializeSDK(
 | `debug` | `string` | `'y'` enables verbose SDK logging. Use `'n'` in production. |
 | `accessToken` | `string` | Your IDmission API access token. |
 
+### Optional: SDK options
+
+Call `setSDKOptions` **before** `initializeSDK` to change the defaults. Any key you omit keeps its default.
+
+```js
+IDMissionSDK.setSDKOptions({
+  enableGPS: true,              // capture GPS location with submissions (default true)
+  geolocationRequired: false,   // block the flow if the user denies location access (default false)
+  enableScreenRecording: false, // allow screen recording / screenshots during capture (default false)
+});
+```
+
+### Optional: SDK version and model names
+
+`getSDKInfo()` returns a Promise with the native SDK version and the ML model files in use. `models` is empty until the SDK has been initialized.
+
+```js
+const { version, models } = await IDMissionSDK.getSDKInfo();
+// version: e.g. "IOS_Medium_11.1.19_2_2"
+// models:  [{ name: 'Face Detector', value: 'face_detection_full_range_sparse.tflite' }, ...]
+```
+
 ---
 
 ## Step 6 — Call identity services

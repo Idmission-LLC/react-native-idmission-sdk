@@ -155,7 +155,7 @@ export default class IdentityServices extends React.Component {
                                 />
                             </Svg>
                         </TouchableOpacity>
-                        <Text style={styles.appBarTitle}>Identity Services</Text>
+                        <Text style={styles.appBarTitle}>Settings</Text>
                     </View>
 
                     {this.renderLoader()}

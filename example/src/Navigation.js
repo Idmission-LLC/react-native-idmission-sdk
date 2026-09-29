@@ -18,7 +18,10 @@ function App() {
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="IdentityServices" component={IdentityServices} />
         <Stack.Screen name="ResultScreen" component={ResultScreen} />
-        <Stack.Screen name="QRScanner" component={QRScanner} options={{ presentation: 'fullScreenModal' }} />
+        {/* Pushed as a regular screen (slide up) rather than a fullScreenModal:
+            on iOS the modal reported zero safe-area insets, so the header was
+            drawn under the status bar. */}
+        <Stack.Screen name="QRScanner" component={QRScanner} options={{ animation: 'slide_from_bottom' }} />
 
       </Stack.Navigator>
     </NavigationContainer>

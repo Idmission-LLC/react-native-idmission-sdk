@@ -46,6 +46,16 @@ RCT_EXPORT_METHOD(initializeSDK:(NSString *)apiBaseUrl authUrl:(NSString *)authU
   });
 }
 
+RCT_EXPORT_METHOD(setSDKOptions:(NSDictionary *)options)
+{
+  [IDentitySDKHelper setOptions:options];
+}
+
+RCT_EXPORT_METHOD(getSDKInfo:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+  resolve([IDentitySDKHelper sdkInfo]);
+}
+
 RCT_EXPORT_METHOD(serviceID20)
 {
   UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
