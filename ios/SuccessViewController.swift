@@ -41,7 +41,10 @@ class SuccessViewController: UIViewController {
         if request.customerData.idData.idImageBack != nil {
             request.customerData.idData.idImageBack = "..."
         }
-        
+        if request.customerData.idData.idBarcodeImage != nil {
+            request.customerData.idData.idBarcodeImage = "..."
+        }
+
         let requestObfuscated = request
         
         if let data = try? encoder.encode(request.customerData),
@@ -63,7 +66,10 @@ class SuccessViewController: UIViewController {
         if request.customerData.idData.idImageBack != nil {
             request.customerData.idData.idImageBack = "..."
         }
-        
+        if request.customerData.idData.idBarcodeImage != nil {
+            request.customerData.idData.idBarcodeImage = "..."
+        }
+
         request.customerData.biometricData.selfie = "..."
     
         let requestObfuscated = request
@@ -87,6 +93,10 @@ class SuccessViewController: UIViewController {
         if request.customerData.idData.idImageBack != nil {
             request.customerData.idData.idImageBack = "..."
         }
+        if request.customerData.idData.idBarcodeImage != nil {
+            request.customerData.idData.idBarcodeImage = "..."
+        }
+
         let requestObfuscated = request
       
         if let data = try? encoder.encode(request),

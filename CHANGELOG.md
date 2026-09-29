@@ -3,9 +3,15 @@
 ## 11.1.19
 
 **Android native SDK: 11.1.19.2.05**
+**iOS native SDK: 11.1.19.2.2**
 
 ### Android
 * Bumped `idmission-mediumsdk` to 11.1.19.2.05
+
+### iOS
+* Bumped IDentityMediumSDK2.0 to 11.1.19.2.2
+* Removed the `GoogleMLKit/TextRecognition` dependency — the iOS SDK no longer uses Google ML Kit (21 fewer pods)
+* The `cocoapods-user-defined-build-types` plugin and the `SWIFT_ENABLE_EXPLICIT_MODULES = NO` workaround are no longer required
 
 ## 11.1.13
 

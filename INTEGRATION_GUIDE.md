@@ -2,7 +2,7 @@
 
 **Package:** `react-native-idmission-sdk`
 **Android native SDK:** 11.1.19.2.05
-**iOS native SDK:** 11.1.13.2.3
+**iOS native SDK:** 11.1.19.2.2
 **Minimum React Native:** 0.83
 
 ---
@@ -18,7 +18,6 @@
 | Java | 17 | |
 | iOS deployment target | 15.6 | |
 | CocoaPods | latest | `sudo gem install cocoapods` |
-| cocoapods-user-defined-build-types | latest | `sudo gem install cocoapods-user-defined-build-types` |
 
 ---
 
@@ -104,23 +103,11 @@ android {
 
 ## Step 3 — iOS setup
 
-### 3a. Install the CocoaPods plugin
+### 3a. Update your Podfile
 
-The iOS native SDK requires mixed static/dynamic framework linking, which CocoaPods does not support natively. Install the `cocoapods-user-defined-build-types` gem:
-
-```bash
-sudo gem install cocoapods-user-defined-build-types
-```
-
-### 3b. Update your Podfile
-
-Add the plugin lines at the top of `ios/Podfile` and declare the IDmission pods inside your app target. A complete Podfile looks like this:
+Declare the IDmission pod inside your app target in `ios/Podfile`. A complete Podfile looks like this:
 
 ```ruby
-plugin 'cocoapods-user-defined-build-types'
-
-enable_user_defined_build_types!
-
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
@@ -139,7 +126,6 @@ target 'YourAppName' do
   config = use_native_modules!
 
   pod 'IDentityMediumSDK2.0'
-  pod 'GoogleMLKit/TextRecognition', :build_type => :dynamic_framework
 
   use_react_native!(
     :path => config[:reactNativePath],
@@ -167,29 +153,17 @@ target 'YourAppName' do
         File.write(fmt_base, text.sub(original, replacement))
       end
     end
-
-    # Fix "Unable to resolve module dependency: MLKitTextRecognition / MLKitVision"
-    # on Xcode 16+/26. The IDentityMediumSDK.xcframework imports the ML Kit modules
-    # in its .swiftinterface but its podspec declares no ML Kit dependency, so the
-    # Explicitly-Built-Modules builder compiles the SDK module without ML Kit on its
-    # path. Revert to implicit modules (which search the app's framework paths).
-    # NOTE: also set "Explicitly Built Modules = No" on the app target in Xcode.
-    installer.pods_project.targets.each do |target|
-      target.build_configurations.each do |config|
-        config.build_settings['SWIFT_ENABLE_EXPLICIT_MODULES'] = 'NO'
-      end
-    end
   end
 end
 ```
 
 Replace `YourAppName` with your app target's name.
 
-> **Why the build-type override?** The IDmission SDK and its ML dependencies ship as pre-compiled frameworks. The `GoogleMLKit/TextRecognition` pod must be linked as `:dynamic_framework`, which is what the `cocoapods-user-defined-build-types` plugin enables. Omitting it causes linker errors.
+> **Xcode 26 / Swift 6.3 users:** the `fmt` patch in `post_install` above is required. Without it the build fails with a `fmt` consteval error.
 
-> **Xcode 26 / Swift 6.3 users:** the two `post_install` patches above are required, *and* you must set **Build Settings → Explicitly Built Modules → No** on your app target in Xcode. Without them the build fails with either a `fmt` consteval error or `Unable to resolve module dependency: MLKitTextRecognition`.
+> **Upgrading from 11.1.13 or earlier?** The iOS SDK no longer depends on Google ML Kit. Remove `pod 'GoogleMLKit/TextRecognition'`, the `cocoapods-user-defined-build-types` plugin lines, and the `SWIFT_ENABLE_EXPLICIT_MODULES` `post_install` patch from your Podfile, then re-run `pod install`.
 
-### 3c. Run pod install
+### 3b. Run pod install
 
 ```bash
 cd ios
@@ -197,11 +171,11 @@ LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pod install
 cd ..
 ```
 
-This downloads several large frameworks (TensorFlowLite, GoogleMLKit, IDentityMediumSDK). Allow several minutes on a clean install.
+This downloads the IDentityMediumSDK frameworks. Allow a few minutes on a clean install.
 
 > **UTF-8 locale:** the `LANG` / `LC_ALL` prefixes avoid the CocoaPods `Unicode Normalization not appropriate for ASCII-8BIT` error. Add `export LANG=en_US.UTF-8` to your shell profile to make this permanent.
 
-### 3d. Add required Info.plist permissions
+### 3c. Add required Info.plist permissions
 
 Open `ios/YourAppName/Info.plist` and add the following keys. A missing key causes an immediate crash on iOS 14+:
 
@@ -375,22 +349,19 @@ The GitLab Maven repository or credentials are missing from your project-level `
 Your app's `minSdkVersion` is below 26. Raise it to 26 (Step 2b).
 
 ### `pod install` fails: `Unable to find a specification for 'IDentityMediumSDK2.0'`
-Run `pod repo update`, and confirm the `cocoapods-user-defined-build-types` gem is installed (`gem list | grep cocoapods-user`).
+Run `pod repo update`, then re-run `pod install`.
 
 ### iOS build error: `Undefined symbol` / `framework not found`
-Ensure `GoogleMLKit/TextRecognition` is declared with `:build_type => :dynamic_framework` and that the `plugin 'cocoapods-user-defined-build-types'` line is present at the top of the Podfile. Re-run `pod install --repo-update`.
+Re-run `pod install --repo-update`, then clean the build folder in Xcode (**Product → Clean Build Folder**) and rebuild.
 
 ### iOS build error: `Call to consteval function 'fmt::basic_format_string...'`
-Xcode 26 / Apple Clang 21 with fmt 11.0.2. Apply the `fmt/base.h` patch in the `post_install` block (Step 3b), then re-run `pod install`.
-
-### iOS build error: `Unable to resolve module dependency: MLKitTextRecognition`
-Set `SWIFT_ENABLE_EXPLICIT_MODULES = 'NO'` via the `post_install` block (Step 3b) **and** set **Build Settings → Explicitly Built Modules → No** on your app target in Xcode.
+Xcode 26 / Apple Clang 21 with fmt 11.0.2. Apply the `fmt/base.h` patch in the `post_install` block (Step 3a), then re-run `pod install`.
 
 ### iOS build error: `Use of undeclared identifier 'IDentitySDKHelper'`
 Remove `use_modular_headers!` from your Podfile — it creates a circular module dependency that hides the wrapper's Swift class from Objective-C.
 
 ### Camera / crash on first launch (iOS)
-All three of `NSCameraUsageDescription`, `NSMicrophoneUsageDescription`, and `NSPhotoLibraryUsageDescription` must be present in `Info.plist` (Step 3d).
+All three of `NSCameraUsageDescription`, `NSMicrophoneUsageDescription`, and `NSPhotoLibraryUsageDescription` must be present in `Info.plist` (Step 3c).
 
 ---
 

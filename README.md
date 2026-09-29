@@ -34,7 +34,7 @@ cd ios && pod install && cd ..
 | React Native | 0.83+ |
 | Node | 20 |
 | Android | API 26 (Android 8.0), compileSdk 36 |
-| iOS | 15.6, CocoaPods + `cocoapods-user-defined-build-types` |
+| iOS | 15.6, CocoaPods |
 
 ## Usage
 
@@ -78,4 +78,4 @@ A working example app is included in [`example/`](example/).
 ## Native SDK versions
 
 - Android: `idmission-mediumsdk 11.1.19.2.05`
-- iOS: `IDentityMediumSDK2.0 11.1.13.2.3`
+- iOS: `IDentityMediumSDK2.0 11.1.19.2.2`

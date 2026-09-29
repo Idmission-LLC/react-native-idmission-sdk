@@ -1,7 +1,3 @@
-plugin 'cocoapods-user-defined-build-types'
-
-enable_user_defined_build_types!
-
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
@@ -25,10 +21,8 @@ target 'IDMTest' do
   # (IDMissionSDK.m) and Swift (IDentitySDKHelper.swift) and relies on the generated
   # `react_native_idmission_sdk-Swift.h`; modular headers create a circular module
   # dependency that makes the Swift class invisible to ObjC ("Use of undeclared
-  # identifier 'IDentitySDKHelper'"). ML Kit is resolved via the wrapper podspec's
-  # GoogleMLKit dependencies instead.
-  pod 'IDentityMediumSDK2.0', :git => 'https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git', :tag => '11.1.13.2.3'
-  pod 'GoogleMLKit/TextRecognition', :build_type => :dynamic_framework
+  # identifier 'IDentitySDKHelper'").
+  pod 'IDentityMediumSDK2.0', :git => 'https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git', :tag => '11.1.19.2.2'
   
   use_react_native!(
     :path => config[:reactNativePath],
@@ -57,18 +51,6 @@ target 'IDMTest' do
       if text.include?(original)
         File.write(fmt_base, text.sub(original, replacement))
         Pod::UI.puts "[fmt patch] Disabled consteval in fmt/base.h".green
-      end
-    end
-
-    # Fix "Unable to resolve module dependency: MLKitTextRecognition / MLKitVision"
-    # on Xcode 16+/26. The IDentityMediumSDK.xcframework imports the ML Kit modules
-    # in its .swiftinterface but its podspec declares no ML Kit dependency, so the
-    # Explicitly-Built-Modules builder compiles the SDK module without ML Kit on its
-    # path. Revert to implicit modules (which search the app's framework paths).
-    # NOTE: also set "Explicitly Built Modules = No" on the app target in Xcode.
-    installer.pods_project.targets.each do |target|
-      target.build_configurations.each do |config|
-        config.build_settings['SWIFT_ENABLE_EXPLICIT_MODULES'] = 'NO'
       end
     end
   end

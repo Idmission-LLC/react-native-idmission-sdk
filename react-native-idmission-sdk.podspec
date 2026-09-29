@@ -21,11 +21,6 @@ Pod::Spec.new do |s|
   # IDmission native iOS SDK
   s.dependency "IDentityMediumSDK2.0"
 
-  # The IDmission SDK's public .swiftinterface imports MLKitTextRecognition,
-  # so any module that imports IDentityMediumSDK must also see it — otherwise
-  # the build fails with "No such module 'MLKitTextRecognition'".
-  s.dependency "GoogleMLKit/TextRecognition"
-
   # The module mixes Objective-C and Swift, so it must define a clang module
   # (this produces the `react_native_idmission_sdk-Swift.h` header imported by
   # IDMissionSDK.m). EXCLUDED_ARCHS keeps the simulator build clean.
