@@ -83,13 +83,6 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 8,
     },
-    sectionTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: constant.slateDark,
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-    },
     card: {
         backgroundColor: constant.white,
         borderRadius: 16,
@@ -120,12 +113,15 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         backgroundColor: constant.slateLight,
         borderRadius: 10,
-        paddingVertical: 12,
+        paddingVertical: 2,
         paddingHorizontal: 14,
-        marginBottom: 16,
+        marginBottom: 8,
+    },
+    compactSwitch: {
+        transform: [{ scaleX: 0.92 }, { scaleY: 0.92 }],
     },
     debugRowLabel: {
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: '500',
         color: constant.black,
     },
@@ -135,6 +131,13 @@ const styles = StyleSheet.create({
         color: constant.slate,
         marginBottom: 6,
         marginLeft: 4,
+    },
+    inputWrapperCompact: {
+        height: 42,
+    },
+    compactButton: {
+        paddingVertical: 10,
+        marginTop: 6,
     },
     inputWrapper: {
         backgroundColor: constant.slateLight,

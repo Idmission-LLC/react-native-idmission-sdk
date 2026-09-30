@@ -59,14 +59,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 public class IDMissionSDK extends ReactContextBaseJavaModule implements ActivityEventListener {
-    String ApiBaseUrl,AuthUrl = "https://api.idmission.com/";
+    String ApiBaseUrl = "https://api.idmission.com/";
     String AccessToken = "";
     boolean IsDebug = false;
-    // Options set from JS via setSDKOptions(); applied on the next initializeSDK().
+    // Options passed to initializeSDK().
     // Defaults match the native IDentity app.
     boolean IsGpsEnabled = true;
     boolean IsGeolocationRequired = false;
     boolean IsScreenRecordingEnabled = false;
+    boolean IsUpdateModelsData = true;
+    LANGUAGE Language = LANGUAGE.EN;
     ReactApplicationContext reactContext;
 
     //constructor
@@ -82,10 +84,9 @@ public class IDMissionSDK extends ReactContextBaseJavaModule implements Activity
     }
 
     @ReactMethod
-    public void initializeSDK(String apiBaseUrl, String authUrl, String debug, String accessToken) {
+    public void initializeSDK(String apiBaseUrl, String authUrl, String debug, String accessToken, @Nullable ReadableMap options) {
 
         ApiBaseUrl = apiBaseUrl;
-        AuthUrl = apiBaseUrl;
 
         if(null!=debug && debug.contains("y")){
             IsDebug=true;
@@ -94,14 +95,21 @@ public class IDMissionSDK extends ReactContextBaseJavaModule implements Activity
         }
 
         AccessToken = accessToken;
-        new BackgroundTask().execute();
-    }
 
-    @ReactMethod
-    public void setSDKOptions(ReadableMap options) {
-        if (options.hasKey("enableGPS")) IsGpsEnabled = options.getBoolean("enableGPS");
-        if (options.hasKey("geolocationRequired")) IsGeolocationRequired = options.getBoolean("geolocationRequired");
-        if (options.hasKey("enableScreenRecording")) IsScreenRecordingEnabled = options.getBoolean("enableScreenRecording");
+        // SDK options passed to initializeSDK. Defaults match the native IDentity app.
+        IsGpsEnabled = options == null || !options.hasKey("enableGPS") || options.getBoolean("enableGPS");
+        IsGeolocationRequired = options != null && options.hasKey("geolocationRequired") && options.getBoolean("geolocationRequired");
+        IsScreenRecordingEnabled = options != null && options.hasKey("enableScreenRecording") && options.getBoolean("enableScreenRecording");
+        IsUpdateModelsData = options == null || !options.hasKey("isUpdateModelsData") || options.getBoolean("isUpdateModelsData");
+        // Supported: en, es, my, ar. Unknown or missing values fall back to English.
+        Language = LANGUAGE.EN;
+        if (options != null && options.hasKey("language") && options.getString("language") != null) {
+            try {
+                Language = LANGUAGE.valueOf(options.getString("language").toUpperCase(java.util.Locale.ROOT));
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        new BackgroundTask().execute();
     }
 
     // SDK version plus the ML model file names in use. Model names are empty
@@ -272,7 +280,7 @@ public class IDMissionSDK extends ReactContextBaseJavaModule implements Activity
         @Override
         protected Response<InitializeResponse> doInBackground(Void... voids) {
             SDKCustomizationOptions sco = new SDKCustomizationOptions(
-                    LANGUAGE.EN,
+                    Language,
                     false,
                     false,
                     false,
@@ -290,7 +298,7 @@ public class IDMissionSDK extends ReactContextBaseJavaModule implements Activity
                             IsDebug,
                             IsGpsEnabled,
                             sco,
-                            true,
+                            IsUpdateModelsData,
                             AccessToken);
             return response;
         }

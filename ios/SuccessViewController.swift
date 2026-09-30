@@ -21,163 +21,24 @@ class SuccessViewController: UIViewController {
   
   override func viewDidLoad() {
         super.viewDidLoad()
-      
-        // pretty print the request object
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
-    
-    if validateIdResult != nil ||
-        validateIdMatchFaceResult != nil ||
-        customerEnrollResult != nil {
-        guard frontDetectedData != nil else {
-            texts = "ERROR"
-            return
-        }
-    }
-      
-    if let _ = validateIdResult, var request = IDentitySDK.customerValidateIdRequest {
-        // stub out the base64 image text for logging
-        request.customerData.idData.idImageFront = "..."
-        if request.customerData.idData.idImageBack != nil {
-            request.customerData.idData.idImageBack = "..."
-        }
-        if request.customerData.idData.idBarcodeImage != nil {
-            request.customerData.idData.idBarcodeImage = "..."
-        }
 
-        let requestObfuscated = request
-        
-        if let data = try? encoder.encode(request.customerData),
-           let json = String(data: data, encoding: .utf8)  {
-            texts = json
-        } else {
-            texts = "ERROR"
+        // Return the result object exactly as the SDK returned it (as JSON), not the
+        // API request.
+        if let r = validateIdResult {
+            texts = CaptureResultSerializer.text(of: r)
+        } else if let r = validateIdMatchFaceResult {
+            texts = CaptureResultSerializer.text(of: r)
+        } else if let r = customerEnrollResult {
+            texts = CaptureResultSerializer.text(of: r)
+        } else if let r = customerEnrollBiometricsResult {
+            texts = CaptureResultSerializer.text(of: r)
+        } else if let r = customerVerificationResult {
+            texts = CaptureResultSerializer.text(of: r)
+        } else if let r = customerIdentifyResult {
+            texts = CaptureResultSerializer.text(of: r)
+        } else if let r = liveFaceCheckResult {
+            texts = CaptureResultSerializer.text(of: r)
         }
-        
-        if let dataObfuscated = try? encoder.encode(requestObfuscated),
-           let jsonObfuscated = String(data: dataObfuscated, encoding: .utf8)  {
-            textObfuscated = jsonObfuscated
-        } else {
-            textObfuscated = "ERROR"
-        }
-    } else if let _ = validateIdMatchFaceResult, var request = IDentitySDK.customerValidateIdFaceMatchRequest {
-        // stub out the base64 image texts for logging
-        request.customerData.idData.idImageFront = "..."
-        if request.customerData.idData.idImageBack != nil {
-            request.customerData.idData.idImageBack = "..."
-        }
-        if request.customerData.idData.idBarcodeImage != nil {
-            request.customerData.idData.idBarcodeImage = "..."
-        }
-
-        request.customerData.biometricData.selfie = "..."
-    
-        let requestObfuscated = request
-      
-        if let data = try? encoder.encode(request.customerData),
-           let json = String(data: data, encoding: .utf8)  {
-            texts = json
-        } else {
-            texts = "ERROR"
-        }
-      
-        if let dataObfuscated = try? encoder.encode(requestObfuscated),
-           let jsonObfuscated = String(data: dataObfuscated, encoding: .utf8)  {
-            textObfuscated = jsonObfuscated
-        } else {
-            textObfuscated = "ERROR"
-        }
-    } else if let _ = customerEnrollResult, var request = IDentitySDK.customerEnrollRequest {
-        // stub out the base64 image text for logging
-        request.customerData.idData.idImageFront = "..."
-        if request.customerData.idData.idImageBack != nil {
-            request.customerData.idData.idImageBack = "..."
-        }
-        if request.customerData.idData.idBarcodeImage != nil {
-            request.customerData.idData.idBarcodeImage = "..."
-        }
-
-        let requestObfuscated = request
-      
-        if let data = try? encoder.encode(request),
-           let json = String(data: data, encoding: .utf8)  {
-            texts = json
-        } else {
-            texts = "ERROR"
-        }
-      
-        if let dataObfuscated = try? encoder.encode(requestObfuscated),
-           let jsonObfuscated = String(data: dataObfuscated, encoding: .utf8)  {
-            textObfuscated = jsonObfuscated
-        } else {
-            textObfuscated = "ERROR"
-        }
-    } else if let _ = customerEnrollBiometricsResult, let request = IDentitySDK.customerEnrollBiometricsRequest {
-        let requestObfuscated = request
-      
-        if let data = try? encoder.encode(request),
-           let json = String(data: data, encoding: .utf8)  {
-            texts = json
-        } else {
-            texts = "ERROR"
-        }
-      
-        if let dataObfuscated = try? encoder.encode(requestObfuscated),
-           let jsonObfuscated = String(data: dataObfuscated, encoding: .utf8)  {
-            textObfuscated = jsonObfuscated
-        } else {
-            textObfuscated = "ERROR"
-        }
-    } else if let _ = customerVerificationResult, let request = IDentitySDK.customerVerifyRequest {
-        let requestObfuscated = request
-      
-        if let data = try? encoder.encode(request),
-           let json = String(data: data, encoding: .utf8)  {
-            texts = json
-        } else {
-            texts = "ERROR"
-        }
-      
-        if let dataObfuscated = try? encoder.encode(requestObfuscated),
-           let jsonObfuscated = String(data: dataObfuscated, encoding: .utf8)  {
-            textObfuscated = jsonObfuscated
-        } else {
-            textObfuscated = "ERROR"
-        }
-    } else if let _ = customerIdentifyResult, let request = IDentitySDK.customerIdentifyRequest {
-        let requestObfuscated = request
-      
-        if let data = try? encoder.encode(request),
-           let json = String(data: data, encoding: .utf8)  {
-            texts = json
-        } else {
-            texts = "ERROR"
-        }
-      
-        if let dataObfuscated = try? encoder.encode(requestObfuscated),
-           let jsonObfuscated = String(data: dataObfuscated, encoding: .utf8)  {
-            textObfuscated = jsonObfuscated
-        } else {
-            textObfuscated = "ERROR"
-        }
-    } else if let _ = liveFaceCheckResult, let request = IDentitySDK.customerLiveCheckRequest {
-        let requestObfuscated = request
-      
-        if let data = try? encoder.encode(request),
-           let json = String(data: data, encoding: .utf8)  {
-            texts = json
-        } else {
-            texts = "ERROR"
-        }
-      
-        if let dataObfuscated = try? encoder.encode(requestObfuscated),
-           let jsonObfuscated = String(data: dataObfuscated, encoding: .utf8)  {
-            textObfuscated = jsonObfuscated
-        } else {
-            textObfuscated = "ERROR"
-        }
-    }
-      
     }
 
   override func viewWillAppear(_ animated: Bool) {
@@ -186,7 +47,7 @@ class SuccessViewController: UIViewController {
   }
 
   private func sendData() {
-    let dict2:NSMutableDictionary? = ["data" : self.texts ?? ["data" : "error"]]
+    let dict2:NSMutableDictionary? = ["data" : self.texts ?? "error"]
     let iDMissionSDK = IDMissionSDK()
     iDMissionSDK.getEvent2("DataCallback", dict: dict2 ?? ["data" : "error"])
   }

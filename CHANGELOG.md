@@ -14,8 +14,12 @@
 * The `cocoapods-user-defined-build-types` plugin and the `SWIFT_ENABLE_EXPLICIT_MODULES = NO` workaround are no longer required
 
 ### React Native wrapper
-* Added `setSDKOptions({ enableGPS, geolocationRequired, enableScreenRecording })` to configure GPS capture, mandatory geolocation and screen recording before `initializeSDK`
+* `initializeSDK` accepts an optional fifth argument `{ language, enableGPS, geolocationRequired, isUpdateModelsData, enableScreenRecording }` that maps to the native SDK's initializer (defaults `'en'`, true, false, true, false; `language` is `'en'`/`'es'`, and on Android also `'my'`/`'ar'`). Existing four-argument calls are unchanged
+* `authUrl` is deprecated and ignored — the native SDK no longer uses it. The argument is kept so existing calls keep working
+* iOS: removed the copy of the sample app's `UserDefaults` helper; the API base URL and access token are passed directly to the SDK
 * Added `getSDKInfo()`, returning the native SDK version and the ML model names in use
+* iOS: capture services now return the result object exactly as the SDK returns it (e.g. `ValidateIdResult`) as JSON, generated from the object's own properties — nothing is renamed, filtered or masked. `UIImage` values are written as base64 JPEG strings. The plugin no longer returns the full API request
+* Example app: the result screen pretty-prints the result with base64 masked for display, and shows thumbnails of the captured images with a full-screen viewer
 * Example app: Settings screen matches the native IDentity app (paired fields, new option switches, SDK version and model list), settings persist after a successful initialization, and the QR scanner header is fixed on iOS
 
 ## 11.1.13

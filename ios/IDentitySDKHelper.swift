@@ -8,18 +8,6 @@ import IDCaptureMedium
 // `react_native_idmission_sdk-Swift.h` that IDMissionSDK.m imports.
 @objc public class IDentitySDKHelper : NSObject{
 
-  // Options set from JS via setSDKOptions(); applied on the next initializeSDK().
-  // Defaults match the native IDentity app.
-  private static var isGPSEnabled = true
-  private static var isGeolocationRequired = false
-  private static var isScreenRecordingEnabled = false
-
-  @objc public static func setOptions(_ options: NSDictionary) {
-    if let value = options["enableGPS"] as? Bool { isGPSEnabled = value }
-    if let value = options["geolocationRequired"] as? Bool { isGeolocationRequired = value }
-    if let value = options["enableScreenRecording"] as? Bool { isScreenRecordingEnabled = value }
-  }
-
   // SDK version plus the ML model file names in use. Model names are empty
   // until the SDK has been initialized (models are downloaded on init).
   @objc public static func sdkInfo() -> NSDictionary {
@@ -48,58 +36,40 @@ import IDCaptureMedium
     IDCapture.options.enableInstructionScreen = false
     SelfieCapture.options.enableInstructionScreen = false
     
-    let urlString = data["apiBaseUrl"] as! String
-    let substring = "http"
-    if urlString.contains(substring) {
-      let apiBaseUrl:String = data["apiBaseUrl"] as! String
-      let debug:String = data["debug"] as! String
-      let accessToken:String = data["accessToken"] as! String
-      
-      UserDefaults.standard.set(String(apiBaseUrl), forKey: "apiBaseUrl")
-      UserDefaults.standard.set(String(accessToken), forKey: "accessToken")
-        
-        if(debug.contains("y")){
-            IDCapture.options.isDebugMode = true
-            SelfieCapture.options.isDebugMode = true
-            DocumentCapture.options.isDebugMode = true
-        }else{
-            IDCapture.options.isDebugMode = false
-            SelfieCapture.options.isDebugMode = false
-            DocumentCapture.options.isDebugMode = false
-        }
-      
-    var authUrl = "https://auth.idmission.com/"
+    // SDK options passed to initializeSDK. Defaults match the native IDentity app.
+    let options = data["options"] as? NSDictionary
+    let isGPSEnabled = options?["enableGPS"] as? Bool ?? true
+    let isGeolocationRequired = options?["geolocationRequired"] as? Bool ?? false
+    let isUpdateModelsData = options?["isUpdateModelsData"] as? Bool ?? true
+    let isScreenRecordingEnabled = options?["enableScreenRecording"] as? Bool ?? false
+    // Unknown or missing languages fall back to English.
+    var language = Language(rawValue: (options?["language"] as? String ?? "en").lowercased()) ?? .en
+    if language == .none { language = .en }
 
-    if apiBaseUrl.contains("lab") {
-          authUrl = "https://labauth.idmission.com:9043/"
-    } else if apiBaseUrl.contains("demo") {
-          authUrl = "https://demoauth.idmission.com/"
-    } else if apiBaseUrl.contains("uat") {
-          authUrl = "https://uatauth.idmission.com/"
-    } else if apiBaseUrl.contains("kyc") {
-          authUrl = "https://auth.idmission.com/"
-    }
-
-    //API Auth URL
-    let defaultAuthUrl = "\(authUrl)auth/realms/identity/protocol/openid-connect/token"
-    UserDefaults.standard.set(defaultAuthUrl, forKey: "authenticationURL")
-    
-    IDentitySDK.apiBaseUrl = UserDefaults.standard.string(forKey: "apiBaseUrl") ?? ""
-      IDentitySDK.isScreenRecordingEnabled(Self.isScreenRecordingEnabled)
-      IDentitySDK.initializeSDK(language: UserDefaults.SDKlanguage, isGPSEnabled: Self.isGPSEnabled, geolocationRequired: Self.isGeolocationRequired, isUpdateModelsData: UserDefaults.isUpdateModelData, accessToken: UserDefaults.accessToken) { error in
-          if let error = error {
-              print("!!! initialize SDK ERROR: \(error.localizedDescription)")
-              self.sendData(text: "Error")
-          } else {
-              print("!!! initialize SDK SUCCESS")
-              self.sendData(text: "SDK successfully initialized")
-          }
-      }
-    }else{
+    guard let apiBaseUrl = data["apiBaseUrl"] as? String, apiBaseUrl.contains("http"),
+          let accessToken = data["accessToken"] as? String else {
       self.sendData(text: "Error")
+      return
     }
-}
-  
+
+    let debug = (data["debug"] as? String ?? "").contains("y")
+    IDCapture.options.isDebugMode = debug
+    SelfieCapture.options.isDebugMode = debug
+    DocumentCapture.options.isDebugMode = debug
+
+    IDentitySDK.apiBaseUrl = apiBaseUrl
+    IDentitySDK.isScreenRecordingEnabled(isScreenRecordingEnabled)
+    IDentitySDK.initializeSDK(language: language, isGPSEnabled: isGPSEnabled, geolocationRequired: isGeolocationRequired, isUpdateModelsData: isUpdateModelsData, accessToken: accessToken) { error in
+      if let error = error {
+        print("!!! initialize SDK ERROR: \(error.localizedDescription)")
+        self.sendData(text: "Error")
+      } else {
+        print("!!! initialize SDK SUCCESS")
+        self.sendData(text: "SDK successfully initialized")
+      }
+    }
+  }
+
   // 20 - ID Validation
   @objc public func startIDValidations(instances: UIViewController) {
     ViewController().startIDValidation(instance: instances);

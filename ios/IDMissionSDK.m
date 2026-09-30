@@ -28,14 +28,15 @@ static IDMissionSDK *gInstance = NULL;
 
 }
 
-RCT_EXPORT_METHOD(initializeSDK:(NSString *)apiBaseUrl authUrl:(NSString *)authUrl debug:(NSString *)debug accessToken:(NSString *)accessToken)
+RCT_EXPORT_METHOD(initializeSDK:(NSString *)apiBaseUrl authUrl:(NSString *)authUrl debug:(NSString *)debug accessToken:(NSString *)accessToken options:(NSDictionary *)options)
 {
   UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
   gInstance = self;
   dispatch_async(dispatch_get_main_queue(), ^{
     [rootViewController viewDidLoad];
-    id objects[] = { apiBaseUrl, authUrl, debug, accessToken };
-    id keys[] = { @"apiBaseUrl", @"authUrl", @"debug", @"accessToken"};
+    // authUrl is accepted for backward compatibility but not used by the SDK.
+    id objects[] = { apiBaseUrl, debug, accessToken, options ?: @{} };
+    id keys[] = { @"apiBaseUrl", @"debug", @"accessToken", @"options"};
     NSUInteger count = sizeof(objects) / sizeof(id);
     NSDictionary *dictionary = [NSDictionary dictionaryWithObjects:objects
                                                            forKeys:keys
@@ -44,11 +45,6 @@ RCT_EXPORT_METHOD(initializeSDK:(NSString *)apiBaseUrl authUrl:(NSString *)authU
     IDentitySDKHelper *client = [IDentitySDKHelper new];
     [client initializeSDKWithData:dictionary instances:rootViewController];
   });
-}
-
-RCT_EXPORT_METHOD(setSDKOptions:(NSDictionary *)options)
-{
-  [IDentitySDKHelper setOptions:options];
 }
 
 RCT_EXPORT_METHOD(getSDKInfo:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)

@@ -10,23 +10,34 @@ const LINKING_ERROR =
  * Native module bridge. Exposes the IDmission IDentity SDK service flows.
  *
  * Method signatures mirror the native implementation:
- *   setSDKOptions({ enableGPS, geolocationRequired, enableScreenRecording })
- *   initializeSDK(apiBaseUrl, authUrl, debug, accessToken)
+ *   initializeSDK(apiBaseUrl, authUrl, debug, accessToken, options?)
  *   serviceID20() / serviceID10() / serviceID185() / serviceID660()
  *   serviceID50(uniqueCustomerNumber) / serviceID175(uniqueCustomerNumber) / serviceID105(uniqueCustomerNumber)
  *   submitResult()
  *   getSDKInfo() -> Promise<{ version: string, models: { name: string, value: string }[] }>
  *
- * setSDKOptions() is optional; call it before initializeSDK() for the options
- * to take effect (defaults: enableGPS true, geolocationRequired false,
- * enableScreenRecording false). getSDKInfo() returns an empty `models` list
- * until the SDK has been initialized.
+ * `authUrl` is deprecated and ignored (the SDK no longer uses it); it is kept so
+ * existing calls keep working.
+ *
+ * `options` is optional: { language, enableGPS, geolocationRequired,
+ * isUpdateModelsData, enableScreenRecording } with defaults 'en', true, false,
+ * true, false. `language` is 'en' or 'es' (Android also 'my' and 'ar').
+ * Omitted keys keep their default, and calling initializeSDK with four
+ * arguments still works. getSDKInfo() returns an empty `models` list until the
+ * SDK has been initialized.
  *
  * Results of initializeSDK / service / submit calls are delivered
  * asynchronously through the `DataCallback` event (see {@link addDataCallbackListener}).
  */
-export const IDMissionSDK = NativeModules.IDMissionSDK
-  ? NativeModules.IDMissionSDK
+const nativeModule = NativeModules.IDMissionSDK;
+
+export const IDMissionSDK = nativeModule
+  ? Object.assign(Object.create(nativeModule), {
+      // The native method always takes the options argument; fill it in so
+      // existing four-argument calls keep working.
+      initializeSDK: (apiBaseUrl, authUrl, debug, accessToken, options = {}) =>
+        nativeModule.initializeSDK(apiBaseUrl, authUrl, debug, accessToken, options || {}),
+    })
   : new Proxy(
       {},
       {

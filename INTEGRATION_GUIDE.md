@@ -212,35 +212,31 @@ useEffect(() => {
 
 ## Step 5 — Initialize the SDK
 
-Call `initializeSDK` once before invoking any service. The `DataCallback` event fires with `"SDK Successfully Initialized"` (or an error message) when initialization completes.
+Call `initializeSDK` once before invoking any service. The `DataCallback` event fires with `"SDK Successfully Initialized"` (or an error message) when initialization completes. You need an access token — see [Getting an access token](#getting-an-access-token) below.
 
 ```js
 IDMissionSDK.initializeSDK(
   'https://kyc.idmission.com/',  // apiBaseUrl — provided by IDmission
-  'https://auth.idmission.com/', // authUrl — provided by IDmission
+  '',                            // authUrl — deprecated and ignored; pass '' or your old value
   'n',                           // debug: 'y' enables verbose logging, 'n' disables it
-  'YOUR_ACCESS_TOKEN'            // accessToken — provided by IDmission
+  'YOUR_ACCESS_TOKEN',           // accessToken — provided by IDmission
+  {                              // options — optional, these are the defaults
+    language: 'en',               // 'en' or 'es' (Android also 'my' and 'ar')
+    enableGPS: true,              // capture GPS location with submissions
+    geolocationRequired: false,   // block the flow if the user denies location access
+    isUpdateModelsData: true,     // download the latest SDK models after credential verification
+    enableScreenRecording: false, // allow screen recording / screenshots during capture
+  }
 );
 ```
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `apiBaseUrl` | `string` | Base URL for IDmission API calls. Provided by IDmission for your environment. |
-| `authUrl` | `string` | Authentication URL. Provided by IDmission. |
+| `authUrl` | `string` | **Deprecated and ignored** — the SDK no longer uses it. Kept so existing calls keep working. |
 | `debug` | `string` | `'y'` enables verbose SDK logging. Use `'n'` in production. |
 | `accessToken` | `string` | Your IDmission API access token. |
-
-### Optional: SDK options
-
-Call `setSDKOptions` **before** `initializeSDK` to change the defaults. Any key you omit keeps its default.
-
-```js
-IDMissionSDK.setSDKOptions({
-  enableGPS: true,              // capture GPS location with submissions (default true)
-  geolocationRequired: false,   // block the flow if the user denies location access (default false)
-  enableScreenRecording: false, // allow screen recording / screenshots during capture (default false)
-});
-```
+| `options` | `object` (optional) | `{ language, enableGPS, geolocationRequired, isUpdateModelsData, enableScreenRecording }`. Defaults `'en'`, `true`, `false`, `true`, `false`. `language` is `'en'` or `'es'` (Android also `'my'` and `'ar'`); unknown values fall back to `'en'`. Omitted keys keep their default, and calling `initializeSDK` with four arguments still works. |
 
 ### Optional: SDK version and model names
 
@@ -251,6 +247,68 @@ const { version, models } = await IDMissionSDK.getSDKInfo();
 // version: e.g. "IOS_Medium_11.1.19_2_2"
 // models:  [{ name: 'Face Detector', value: 'face_detection_full_range_sparse.tflite' }, ...]
 ```
+
+### Getting an access token
+
+The plugin does not create access tokens. Your app requests one from IDmission's authentication service and passes it to `initializeSDK`. You need the **Login ID**, **Password**, **Client ID** and **Client Secret** that IDmission issued to you.
+
+**Token URL.** Replace the leading `api` in your API base URL's host with `auth`:
+
+| API base URL | Token URL |
+|--------------|-----------|
+| `https://api.idmission.com/` | `https://auth.idmission.com/auth/realms/identity/protocol/openid-connect/token` |
+| `https://apidemo.idmission.com/` | `https://demoauth.idmission.com/auth/realms/identity/protocol/openid-connect/token` |
+| `https://apiuat.idmission.com/` | `https://uatauth.idmission.com/auth/realms/identity/protocol/openid-connect/token` |
+
+For any other environment, use the token URL provided by IDmission.
+
+**Request.** `POST` to the token URL with `Content-Type: application/x-www-form-urlencoded` and these fields:
+
+| Field | Value |
+|-------|-------|
+| `grant_type` | `password` |
+| `client_id` | Your Client ID |
+| `client_secret` | Your Client Secret |
+| `username` | Your Login ID |
+| `password` | Your Password |
+| `scope` | `api_access` |
+
+```bash
+curl -X POST 'https://auth.idmission.com/auth/realms/identity/protocol/openid-connect/token' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'grant_type=password' \
+  --data-urlencode 'client_id=YOUR_CLIENT_ID' \
+  --data-urlencode 'client_secret=YOUR_CLIENT_SECRET' \
+  --data-urlencode 'username=YOUR_LOGIN_ID' \
+  --data-urlencode 'password=YOUR_PASSWORD' \
+  --data-urlencode 'scope=api_access'
+```
+
+The JSON response contains the token in `access_token`. If the request fails, the response contains `error` and `error_description`.
+
+```js
+async function fetchAccessToken(tokenUrl, credentials) {
+  // credentials: { client_id, client_secret, username, password }
+  const body = new URLSearchParams({
+    grant_type: 'password',
+    scope: 'api_access',
+    ...credentials,
+  }).toString();
+
+  const response = await fetch(tokenUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body,
+  });
+  const json = await response.json();
+  if (!json.access_token) {
+    throw new Error(json.error_description || json.error || 'Token request failed');
+  }
+  return json.access_token;
+}
+```
+
+> **Security:** do not ship the Client Secret or the user's password inside a production app. Request the token from your own backend, or have the user enter or scan the credentials at run time, and pass only the resulting `access_token` to the SDK. The `example/` app fetches the token on the device for demonstration only.
 
 ---
 

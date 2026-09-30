@@ -18,7 +18,7 @@ LogBox.ignoreAllLogs();
 // when returning to this screen or relaunching the app.
 const SETTINGS_STORAGE_KEY = 'idmission.settings';
 const PERSISTED_FIELDS = [
-    'apiBaseUrl', 'loginId', 'password', 'clientId', 'clientSecret',
+    'apiBaseUrl', 'authUrl', 'accessToken', 'loginId', 'password', 'clientId', 'clientSecret',
     'debugMode', 'screenRecording', 'gpsEnabled', 'geolocationRequired',
 ];
 
@@ -56,6 +56,11 @@ export default class Home extends React.Component {
             password: '',
             clientId: '',
             clientSecret: '',
+            // True once the user has typed their own auth URL; until then it
+            // follows the API Base URL.
+            authUrlEdited: false,
+            tokenGenerated: false,
+            tokenError: null,
             initError: null,
             isLoading: false,
         }
@@ -92,6 +97,8 @@ export default class Home extends React.Component {
                 PERSISTED_FIELDS.forEach((key) => {
                     if (saved[key] !== undefined) restored[key] = saved[key];
                 });
+                restored.authUrlEdited = !!restored.authUrl &&
+                    restored.authUrl !== (this.deriveTokenUrl(restored.apiBaseUrl || '') || '');
                 this.setState(restored);
             }
         } catch (e) {
@@ -165,34 +172,54 @@ export default class Home extends React.Component {
         return json.access_token;
     }
 
-    onInit = async () => {
-        this.setState({ isLoading: true, initError: null });
+    onGenerateToken = async () => {
+        this.setState({ isLoading: true, tokenError: null });
         try {
-            const tokenUrl = this.deriveTokenUrl(this.state.apiBaseUrl);
-            if (!tokenUrl) {
-                throw new Error('Enter a valid API Base URL before initializing.');
+            const { authUrl, apiBaseUrl, clientId, clientSecret, loginId, password } = this.state;
+            const tokenUrl = authUrl.trim() || this.deriveTokenUrl(apiBaseUrl);
+            if (!tokenUrl || !/^https?:\/\//i.test(tokenUrl)) {
+                throw new Error('Enter the Access Token Auth URL (or an API Base URL) first.');
+            }
+            if (!clientId || !clientSecret || !loginId || !password) {
+                throw new Error('Enter Client ID, Client Secret, Login ID and Password first.');
             }
             const accessToken = await this.fetchAccessToken(tokenUrl);
-            this.setState({ accessToken });
-            IDMissionSDK.setSDKOptions({
-                enableScreenRecording: this.state.screenRecording,
-                enableGPS: this.state.gpsEnabled,
-                geolocationRequired: this.state.geolocationRequired,
-            });
-            IDMissionSDK.initializeSDK(
-                this.state.apiBaseUrl,
-                tokenUrl,
-                this.state.debugMode ? 'y' : 'n',
-                accessToken
-            );
-            // isLoading stays true here — the DataCallback listener above
-            // resolves it once the native initializeSDK() call completes.
+            this.setState({ isLoading: false, accessToken, tokenGenerated: true });
         } catch (error) {
             this.setState({
                 isLoading: false,
-                initError: error.message || 'SDK initialization failed.',
+                tokenGenerated: false,
+                tokenError: error.message || 'Token request failed.',
             });
         }
+    }
+
+    onInit = () => {
+        const { apiBaseUrl, authUrl, accessToken, debugMode } = this.state;
+        if (!/^https?:\/\//i.test(apiBaseUrl)) {
+            this.setState({ initError: 'Enter a valid API Base URL before initializing.' });
+            return;
+        }
+        if (!accessToken.trim()) {
+            this.setState({ initError: 'Generate or enter an Access Token before initializing.' });
+            return;
+        }
+        this.setState({ isLoading: true, initError: null });
+        // authUrl is deprecated and ignored by the SDK; it is only passed for
+        // backward compatibility.
+        IDMissionSDK.initializeSDK(
+            apiBaseUrl,
+            authUrl,
+            debugMode ? 'y' : 'n',
+            accessToken.trim(),
+            {
+                enableScreenRecording: this.state.screenRecording,
+                enableGPS: this.state.gpsEnabled,
+                geolocationRequired: this.state.geolocationRequired,
+            }
+        );
+        // isLoading stays true here — the DataCallback listener above
+        // resolves it once the native initializeSDK() call completes.
     }
 
     openScanner = () => {
@@ -201,8 +228,14 @@ export default class Home extends React.Component {
 
     handleQrScanned = (data) => {
         const apiBaseUrl = deriveApiBaseUrlFromQrUrl(data?.URL);
+        const authUrl = apiBaseUrl && !this.state.authUrlEdited
+            ? (this.deriveTokenUrl(apiBaseUrl) || '')
+            : this.state.authUrl;
         this.setState({
             apiBaseUrl: apiBaseUrl || this.state.apiBaseUrl,
+            authUrl,
+            tokenGenerated: false,
+            tokenError: null,
             loginId: data?.LoginId != null ? String(data.LoginId) : this.state.loginId,
             password: data?.Password != null ? String(data.Password) : this.state.password,
             clientId: data?.ClientId != null ? String(data.ClientId) : this.state.clientId,
@@ -212,46 +245,28 @@ export default class Home extends React.Component {
     }
 
     saveApiBaseUrl = (text) => {
-        this.setState({
-            apiBaseUrl: text
-        })
+        this.setState((prev) => ({
+            apiBaseUrl: text,
+            ...(prev.authUrlEdited ? {} : { authUrl: this.deriveTokenUrl(text) || '', tokenGenerated: false }),
+        }));
     }
 
     saveAuthUrl = (text) => {
-        this.setState({
-            authUrl: text
-        })
+        this.setState({ authUrl: text, authUrlEdited: text.length > 0, tokenGenerated: false });
     }
 
     toggleSetting = (key) => {
         this.setState((prevState) => ({ [key]: !prevState[key] }));
     }
 
-    saveLoginId = (text) => {
-        this.setState({
-            loginId: text
-        })
+    // Editing any field that feeds the token invalidates the generated-token tick.
+    saveAccessToken = (text) => {
+        this.setState({ accessToken: text });
     }
 
-    savePassword = (text) => {
-        this.setState({
-            password: text
-        })
+    saveCredential = (key) => (text) => {
+        this.setState({ [key]: text, tokenGenerated: false });
     }
-
-    saveClientId = (text) => {
-        this.setState({
-            clientId: text
-        })
-    }
-
-    saveClientSecret = (text) => {
-        this.setState({
-            clientSecret: text
-        })
-    }
-
-
 
     renderLoader = () => (
         <Modal
@@ -271,7 +286,7 @@ export default class Home extends React.Component {
     renderInput = (label, placeholder, onChangeText, options = {}) => (
         <View style={[styles.inputGroup, options.style]}>
             <Text style={styles.inputLabel}>{label}</Text>
-            <View style={styles.inputWrapper}>
+            <View style={[styles.inputWrapper, styles.inputWrapperCompact]}>
                 <TextInput
                     style={styles.textInput}
                     placeholder={placeholder}
@@ -286,16 +301,22 @@ export default class Home extends React.Component {
         </View>
     );
 
+    // The whole row toggles, so it is easy to tap.
     renderSwitch = (label, key) => (
-        <View style={styles.debugRow}>
+        <TouchableOpacity
+            style={styles.debugRow}
+            activeOpacity={0.7}
+            onPress={() => this.toggleSetting(key)}
+        >
             <Text style={styles.debugRowLabel}>{label}</Text>
             <Switch
+                style={styles.compactSwitch}
                 value={this.state[key]}
                 onValueChange={() => this.toggleSetting(key)}
                 trackColor={{ false: '#D9DEE4', true: constant.primary }}
                 thumbColor="#FFFFFF"
             />
-        </View>
+        </TouchableOpacity>
     );
 
     renderSdkInfo = () => (
@@ -318,7 +339,7 @@ export default class Home extends React.Component {
 
     renderButton = (label, onPress, secondary = false) => (
         <TouchableOpacity
-            style={[styles.actionButton, secondary && styles.actionButtonSecondary]}
+            style={[styles.actionButton, styles.compactButton, secondary && styles.actionButtonSecondary]}
             onPress={onPress}
             activeOpacity={0.7}
         >
@@ -349,16 +370,23 @@ export default class Home extends React.Component {
 
                     <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
                         <View style={[styles.card, { marginTop: 20 }]}>
-                            {this.renderInput("API Base URL", "https://api.idmission.com", (text) => this.saveApiBaseUrl(text), { value: this.state.apiBaseUrl })}
+                            {this.renderInput("Access Token Auth URL", "https://auth.idmission.com/auth/realms/identity/protocol/openid-connect/token", this.saveAuthUrl, { value: this.state.authUrl })}
+                            <View style={styles.inputRow}>
+                                {this.renderInput("Login ID", "Login ID", this.saveCredential('loginId'), { value: this.state.loginId, style: styles.inputRowItem })}
+                                {this.renderInput("Password", "Password", this.saveCredential('password'), { secure: true, value: this.state.password, style: styles.inputRowItem })}
+                            </View>
+                            <View style={styles.inputRow}>
+                                {this.renderInput("Client ID", "Client ID", this.saveCredential('clientId'), { value: this.state.clientId, style: styles.inputRowItem })}
+                                {this.renderInput("Client Secret", "Client Secret", this.saveCredential('clientSecret'), { secure: true, value: this.state.clientSecret, style: styles.inputRowItem })}
+                            </View>
+                            {this.renderButton(this.state.tokenGenerated ? "Generate Access Token \u2713" : "Generate Access Token \u2715", () => this.onGenerateToken())}
+                            {this.state.tokenError ? (
+                                <Text style={styles.tokenErrorText}>{this.state.tokenError}</Text>
+                            ) : null}
 
-                            <View style={styles.inputRow}>
-                                {this.renderInput("Login ID", "Login ID", (text) => this.saveLoginId(text), { value: this.state.loginId, style: styles.inputRowItem })}
-                                {this.renderInput("Password", "Password", (text) => this.savePassword(text), { secure: true, value: this.state.password, style: styles.inputRowItem })}
-                            </View>
-                            <View style={styles.inputRow}>
-                                {this.renderInput("Client ID", "Client ID", (text) => this.saveClientId(text), { value: this.state.clientId, style: styles.inputRowItem })}
-                                {this.renderInput("Client Secret", "Client Secret", (text) => this.saveClientSecret(text), { secure: true, value: this.state.clientSecret, style: styles.inputRowItem })}
-                            </View>
+                            <View style={{ height: 12 }} />
+                            {this.renderInput("API Base URL", "https://api.idmission.com", this.saveApiBaseUrl, { value: this.state.apiBaseUrl })}
+                            {this.renderInput("Access Token", "Generate a token above, or paste one", this.saveAccessToken, { value: this.state.accessToken })}
 
                             {this.renderSwitch("Enable Debug Mode", "debugMode")}
                             {this.renderSwitch("Enable Screen Recording", "screenRecording")}
