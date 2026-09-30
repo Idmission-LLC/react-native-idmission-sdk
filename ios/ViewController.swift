@@ -321,7 +321,6 @@ class ViewController: UIViewController {
       let dict2:NSMutableDictionary? = ["data" : text ]
       let iDMissionSDK = IDMissionSDK()
       iDMissionSDK.getEvent2("DataCallback", dict: dict2 ?? ["data" : "error"])
-      //iDMissionSDK.getEvent2("DataCallback", dict: dict2 ?? ["data" : "error"])
     }
   
   func emptyResults(){

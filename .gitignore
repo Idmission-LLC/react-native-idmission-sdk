@@ -26,3 +26,10 @@ DerivedData/
 .DS_Store
 *.log
 .idea/
+
+# IDE settings
+.vscode/
+.idea/
+android/.settings/
+android/.project
+android/.classpath
