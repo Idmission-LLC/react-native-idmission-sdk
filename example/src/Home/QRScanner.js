@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, PermissionsAndroid, Platform, StatusBar } from 'react-native';
 import { Camera } from 'react-native-camera-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { NavBarBackButton } from '../NavBar';
 
 // Parses the raw QR payload produced by the native reference app's
 // configuration QR codes: a JSON array holding a single object with
@@ -47,18 +48,13 @@ export default function QRScanner({ navigation, route }) {
     return (
         <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
             <StatusBar barStyle="light-content" />
-            {/* Header sits above the camera (not overlaid by it) so Cancel
+            {/* Header sits above the camera (not overlaid by it) so the back arrow
                 receives touches; the title is centred across the full width
-                with Cancel on the left and an equal-width spacer on the right. */}
+                with the back arrow on the left and an equal-width spacer on the right. */}
             <View style={styles.header}>
-                <TouchableOpacity
-                    style={styles.headerSide}
-                    onPress={() => navigation.goBack()}
-                    activeOpacity={0.7}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                    <Text style={styles.backText}>Cancel</Text>
-                </TouchableOpacity>
+                <View style={styles.headerSide}>
+                    <NavBarBackButton onPress={() => navigation.goBack()} />
+                </View>
                 <Text style={styles.title} numberOfLines={1}>Scan QR Code</Text>
                 <View style={styles.headerSide} />
             </View>
@@ -96,23 +92,18 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 14,
+        height: 56,
+        paddingHorizontal: 8,
         backgroundColor: '#0F172A',
     },
     headerSide: {
         width: 70,
     },
-    backText: {
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
-    },
     title: {
         flex: 1,
         color: '#FFFFFF',
-        fontSize: 17,
-        fontWeight: '600',
+        fontSize: 20,
+        fontWeight: '700',
         textAlign: 'center',
     },
     camera: {

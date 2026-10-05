@@ -19,6 +19,9 @@
 * iOS: removed the copy of the sample app's `UserDefaults` helper; the API base URL and access token are passed directly to the SDK
 * Added `getSDKInfo()`, returning the native SDK version and the ML model names in use
 * iOS: capture services now return the result object exactly as the SDK returns it (e.g. `ValidateIdResult`) as JSON, generated from the object's own properties — nothing is renamed, filtered or masked. `UIImage` values are written as base64 JPEG strings. The plugin no longer returns the full API request
+* Example app: **QR-code login** — a *Scan QR* button on the configuration page reads a configuration QR code (Login ID, Password, Client ID, Client Secret, URL), fills in the credentials, selects the matching environment and generates the access token (uses `react-native-camera-kit`)
+* Example app: the single screen is now **two pages** — *Identity React* (configuration: credentials, token, SDK options, Initialize SDK) and *Identity Services* (the service buttons and results). Both pages use a dark app bar with a centered title, matching the Flutter example
+* Example app: the access-token auth URL is now derived from the API base URL with the same table as the native IDentity apps. KYC-UK (`identity.london…`) now uses `https://auth.london.idmission.xyz/` and KYC-US (`identity.virginia…`) uses `https://auth.idmission.com/` (previously `identityauth.*`, which was wrong); the lab API base URL now includes port 9043, like iOS
 * Example app: the result screen pretty-prints the result with base64 masked for display, and shows thumbnails of the captured images with a full-screen viewer
 * Example app: Settings screen matches the native IDentity app (paired fields, new option switches, SDK version and model list), settings persist after a successful initialization, and the QR scanner header is fixed on iOS
 

@@ -8,6 +8,7 @@ import { TextInput } from "react-native";
 import { LogBox } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NavBar, { NavBarScanQrButton } from '../NavBar';
 
 LogBox.ignoreLogs(['new NativeEventEmitter']);
 LogBox.ignoreLogs(['Warning: ...']);
@@ -33,7 +34,7 @@ const deriveApiBaseUrlFromQrUrl = (url) => {
     if (u.includes('kyc-us')) return 'https://identity.virginia.idmission.xyz/identity/';
     if (u.includes('demo')) return 'https://apidemo.idmission.com/';
     if (u.includes('uat')) return 'https://apiuat.idmission.com/';
-    if (u.includes('lab')) return 'https://apilab.idmission.com/';
+    if (u.includes('lab')) return 'https://apilab.idmission.com:9043/';
     if (u.includes('kyc')) return 'https://api.idmission.com/';
     return null;
 }
@@ -125,21 +126,27 @@ export default class Home extends React.Component {
         }
     }
 
-    // Derive the auth/token endpoint from the captured API Base URL.
-    // Mirrors the native sample's URL convention:
-    //   https://api.idmission.com/      -> https://auth.idmission.com/auth/realms/identity/protocol/openid-connect/token
-    //   https://apidemo.idmission.com/  -> https://demoauth.idmission.com/auth/realms/identity/protocol/openid-connect/token
-    // Rule: strip the leading "api" from the first host label; the remaining
-    // environment segment ("" or "demo") prefixes "auth".
+    // Derive the auth/token endpoint from the captured API Base URL, using the
+    // same environment -> auth host table as the native IDentity apps:
+    //   https://api.idmission.com/                 -> https://auth.idmission.com/
+    //   https://apidemo.idmission.com/             -> https://demoauth.idmission.com/
+    //   https://apiuat.idmission.com/              -> https://uatauth.idmission.com/
+    //   https://apilab.idmission.com:9043/         -> https://labauth.idmission.com:9043/
+    //   https://identity.london.idmission.xyz/...  -> https://auth.london.idmission.xyz/
+    //   https://identity.virginia.idmission.xyz/...-> https://auth.idmission.com/
     deriveTokenUrl = (apiBaseUrl) => {
         const match = (apiBaseUrl || '').trim().match(/^(https?:\/\/)([^/]+)(\/.*)?$/i);
         if (!match) return null;
         const [, scheme, host] = match;
+        const tokenPath = '/auth/realms/identity/protocol/openid-connect/token';
+        const h = host.toLowerCase();
+        if (h.startsWith('identity.london.')) return `${scheme}auth.london.idmission.xyz${tokenPath}`;
+        if (h.startsWith('identity.virginia.')) return `${scheme}auth.idmission.com${tokenPath}`;
         const labels = host.split('.');
         const first = labels[0].toLowerCase();
         const env = first.startsWith('api') ? first.slice(3) : first;
         labels[0] = `${env}auth`;
-        return `${scheme}${labels.join('.')}/auth/realms/identity/protocol/openid-connect/token`;
+        return `${scheme}${labels.join('.')}${tokenPath}`;
     }
 
     fetchAccessToken = async (tokenUrl) => {
@@ -352,19 +359,12 @@ export default class Home extends React.Component {
     render() {
         return (
             <NativeBaseProvider>
-                <SafeAreaView style={styles.container}>
-                    <View style={styles.header}>
-                        <View style={styles.headerRow}>
-                            <Text style={styles.headerTitle}>Identity React</Text>
-                            <TouchableOpacity
-                                style={styles.qrScanButton}
-                                onPress={this.openScanner}
-                                activeOpacity={0.7}
-                            >
-                                <Text style={styles.qrScanButtonText}>Scan QR</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+                <View style={styles.container}>
+                    <NavBar
+                        title="Identity React"
+                        right={<NavBarScanQrButton onPress={this.openScanner} />}
+                    />
+                    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.container}>
 
                     {this.renderLoader()}
 
@@ -401,7 +401,8 @@ export default class Home extends React.Component {
                             {this.renderSdkInfo()}
                         </View>
                     </ScrollView>
-                </SafeAreaView>
+                    </SafeAreaView>
+                </View>
             </NativeBaseProvider>
         )
     }

@@ -6,7 +6,7 @@ import styles from '../Styles'
 import { IDMissionSDK, addDataCallbackListener } from 'react-native-idmission-sdk';
 import { TextInput } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Path } from 'react-native-svg';
+import NavBar, { NavBarBackButton } from '../NavBar';
 
 export default class IdentityServices extends React.Component {
     constructor(props) {
@@ -140,23 +140,12 @@ export default class IdentityServices extends React.Component {
     render() {
         return (
             <NativeBaseProvider>
-                <SafeAreaView style={styles.container}>
-                    <View style={styles.appBar}>
-                        <TouchableOpacity
-                            onPress={() => this.props.navigation.replace("Home")}
-                            style={styles.appBarBackButton}
-                            activeOpacity={0.7}
-                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                        >
-                            <Svg width={24} height={24} viewBox="0 0 24 24">
-                                <Path
-                                    d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
-                                    fill={constant.black}
-                                />
-                            </Svg>
-                        </TouchableOpacity>
-                        <Text style={styles.appBarTitle}>Settings</Text>
-                    </View>
+                <View style={styles.container}>
+                    <NavBar
+                        title="Identity Services"
+                        left={<NavBarBackButton onPress={() => this.props.navigation.replace("Home")} />}
+                    />
+                    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.container}>
 
                     {this.renderLoader()}
 
@@ -182,7 +171,8 @@ export default class IdentityServices extends React.Component {
                             </TouchableOpacity>
                         </View>
                     </ScrollView>
-                </SafeAreaView>
+                    </SafeAreaView>
+                </View>
             </NativeBaseProvider>
         )
     }
