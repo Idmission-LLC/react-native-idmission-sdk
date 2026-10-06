@@ -18,7 +18,7 @@ const parseQrPayload = (raw) => {
     }
 }
 
-export default function QRScanner({ navigation, route }) {
+export default function QRScanner({ navigation }) {
     const [hasPermission, setHasPermission] = useState(Platform.OS !== 'android');
     const [scanned, setScanned] = useState(false);
 
@@ -40,10 +40,11 @@ export default function QRScanner({ navigation, route }) {
         const data = parseQrPayload(event.nativeEvent.codeStringValue);
         if (data) {
             setScanned(true);
-            route.params?.onScanned?.(data);
-            navigation.goBack();
+            // Return the result as plain params on Home (functions in route
+            // params trigger React Navigation's non-serializable warning).
+            navigation.popTo('Home', { scannedQr: data });
         }
-    }, [scanned, navigation, route]);
+    }, [scanned, navigation]);
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'bottom']}>

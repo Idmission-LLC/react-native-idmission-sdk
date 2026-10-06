@@ -52,7 +52,7 @@ import IDCaptureMedium
       return
     }
 
-    let debug = (data["debug"] as? String ?? "").contains("y")
+    let debug = options?["enableDebugMode"] as? Bool ?? false
     IDCapture.options.isDebugMode = debug
     SelfieCapture.options.isDebugMode = debug
     DocumentCapture.options.isDebugMode = debug
@@ -65,7 +65,7 @@ import IDCaptureMedium
         self.sendData(text: "Error")
       } else {
         print("!!! initialize SDK SUCCESS")
-        self.sendData(text: "SDK successfully initialized")
+        self.sendData(text: "SDK Successfully Initialized")
       }
     }
   }

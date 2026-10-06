@@ -28,15 +28,14 @@ static IDMissionSDK *gInstance = NULL;
 
 }
 
-RCT_EXPORT_METHOD(initializeSDK:(NSString *)apiBaseUrl authUrl:(NSString *)authUrl debug:(NSString *)debug accessToken:(NSString *)accessToken options:(NSDictionary *)options)
+RCT_EXPORT_METHOD(initializeSDK:(NSString *)apiBaseUrl accessToken:(NSString *)accessToken options:(NSDictionary *)options)
 {
   UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
   gInstance = self;
   dispatch_async(dispatch_get_main_queue(), ^{
     [rootViewController viewDidLoad];
-    // authUrl is accepted for backward compatibility but not used by the SDK.
-    id objects[] = { apiBaseUrl, debug, accessToken, options ?: @{} };
-    id keys[] = { @"apiBaseUrl", @"debug", @"accessToken", @"options"};
+    id objects[] = { apiBaseUrl, accessToken, options ?: @{} };
+    id keys[] = { @"apiBaseUrl", @"accessToken", @"options"};
     NSUInteger count = sizeof(objects) / sizeof(id);
     NSDictionary *dictionary = [NSDictionary dictionaryWithObjects:objects
                                                            forKeys:keys

@@ -217,8 +217,6 @@ Call `initializeSDK` once before invoking any service. The `DataCallback` event 
 ```js
 IDMissionSDK.initializeSDK(
   'https://kyc.idmission.com/',  // apiBaseUrl — provided by IDmission
-  '',                            // authUrl — deprecated and ignored; pass '' or your old value
-  'n',                           // debug: 'y' enables verbose logging, 'n' disables it
   'YOUR_ACCESS_TOKEN',           // accessToken — provided by IDmission
   {                              // options — optional, these are the defaults
     language: 'en',               // 'en' or 'es' (Android also 'my' and 'ar')
@@ -226,6 +224,7 @@ IDMissionSDK.initializeSDK(
     geolocationRequired: false,   // block the flow if the user denies location access
     isUpdateModelsData: true,     // download the latest SDK models after credential verification
     enableScreenRecording: false, // allow screen recording / screenshots during capture
+    enableDebugMode: false,       // verbose SDK logging; keep false in production
   }
 );
 ```
@@ -233,10 +232,8 @@ IDMissionSDK.initializeSDK(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `apiBaseUrl` | `string` | Base URL for IDmission API calls. Provided by IDmission for your environment. |
-| `authUrl` | `string` | **Deprecated and ignored** — the SDK no longer uses it. Kept so existing calls keep working. |
-| `debug` | `string` | `'y'` enables verbose SDK logging. Use `'n'` in production. |
 | `accessToken` | `string` | Your IDmission API access token. |
-| `options` | `object` (optional) | `{ language, enableGPS, geolocationRequired, isUpdateModelsData, enableScreenRecording }`. Defaults `'en'`, `true`, `false`, `true`, `false`. `language` is `'en'` or `'es'` (Android also `'my'` and `'ar'`); unknown values fall back to `'en'`. Omitted keys keep their default, and calling `initializeSDK` with four arguments still works. |
+| `options` | `object` (optional) | `{ language, enableGPS, geolocationRequired, isUpdateModelsData, enableScreenRecording, enableDebugMode }`. Defaults `'en'`, `true`, `false`, `true`, `false`, `false`. `language` is `'en'` or `'es'` (Android also `'my'` and `'ar'`); unknown values fall back to `'en'`. `enableDebugMode: true` turns on verbose SDK logging (keep it `false` in production). Omitted keys keep their default. |
 
 ### Optional: SDK version and model names
 

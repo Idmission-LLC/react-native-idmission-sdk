@@ -47,7 +47,7 @@ const subscription = addDataCallbackListener((event) => {
 });
 
 // 2. Initialise once before calling any service
-IDMissionSDK.initializeSDK(apiBaseUrl, authUrl, debug, accessToken);
+IDMissionSDK.initializeSDK(apiBaseUrl, accessToken);
 
 // 3. Call a service
 IDMissionSDK.serviceID10();

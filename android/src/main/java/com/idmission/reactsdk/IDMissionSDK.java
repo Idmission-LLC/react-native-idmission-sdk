@@ -84,19 +84,14 @@ public class IDMissionSDK extends ReactContextBaseJavaModule implements Activity
     }
 
     @ReactMethod
-    public void initializeSDK(String apiBaseUrl, String authUrl, String debug, String accessToken, @Nullable ReadableMap options) {
+    public void initializeSDK(String apiBaseUrl, String accessToken, @Nullable ReadableMap options) {
 
         ApiBaseUrl = apiBaseUrl;
-
-        if(null!=debug && debug.contains("y")){
-            IsDebug=true;
-        }else{
-            IsDebug=false;
-        }
 
         AccessToken = accessToken;
 
         // SDK options passed to initializeSDK. Defaults match the native IDentity app.
+        IsDebug = options != null && options.hasKey("enableDebugMode") && options.getBoolean("enableDebugMode");
         IsGpsEnabled = options == null || !options.hasKey("enableGPS") || options.getBoolean("enableGPS");
         IsGeolocationRequired = options != null && options.hasKey("geolocationRequired") && options.getBoolean("geolocationRequired");
         IsScreenRecordingEnabled = options != null && options.hasKey("enableScreenRecording") && options.getBoolean("enableScreenRecording");

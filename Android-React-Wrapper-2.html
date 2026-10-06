@@ -165,7 +165,7 @@ const subscription = addDataCallbackListener((event) =&gt; {
 });
 
 // 2. Initialise once before calling any service
-IDMissionSDK.initializeSDK(apiBaseUrl, authUrl, debug, accessToken);
+IDMissionSDK.initializeSDK(apiBaseUrl, accessToken);
 
 // 3. Call a service
 IDMissionSDK.serviceID10();
@@ -183,15 +183,14 @@ subscription.remove();</code></pre>
                     <div class="api-fn-body"><p>Initializes the SDK. Must be called before any other function.</p>
                         <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.initializeSDK(
   apiBaseUrl,   // string — API base URL, provided by IDmission
-  authUrl,      // string — deprecated and ignored; pass '' or your old value
-  debug,        // string — 'y' enables verbose logging, 'n' disables it
   accessToken,  // string — your IDmission access token
   {             // options — optional, these are the defaults
     language: 'en',                // 'en' or 'es' (Android also 'my' and 'ar')
     enableGPS: true,               // capture GPS location with submissions
     geolocationRequired: false,    // block the flow if location access is denied
     isUpdateModelsData: true,      // download the latest SDK models after credential verification
-    enableScreenRecording: false   // allow screen recording / screenshots
+    enableScreenRecording: false,  // allow screen recording / screenshots
+    enableDebugMode: false         // verbose SDK logging (use false in production)
   }
 );</code></pre></div></div>
                 </div>

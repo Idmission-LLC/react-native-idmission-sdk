@@ -107,6 +107,10 @@ export default class Home extends React.Component {
         }
     }
 
+    // SAMPLE APP ONLY: this stores the Login ID, Password, Client ID and Client
+    // Secret in AsyncStorage as plain text so the demo is quick to re-run. Do
+    // NOT copy this into a production app. Keep secrets out of the client, or
+    // use the platform keychain/keystore (e.g. react-native-keychain).
     saveSettings = async () => {
         const settings = {};
         PERSISTED_FIELDS.forEach((key) => { settings[key] = this.state[key]; });
@@ -202,7 +206,7 @@ export default class Home extends React.Component {
     }
 
     onInit = () => {
-        const { apiBaseUrl, authUrl, accessToken, debugMode } = this.state;
+        const { apiBaseUrl, accessToken, debugMode } = this.state;
         if (!/^https?:\/\//i.test(apiBaseUrl)) {
             this.setState({ initError: 'Enter a valid API Base URL before initializing.' });
             return;
@@ -212,14 +216,11 @@ export default class Home extends React.Component {
             return;
         }
         this.setState({ isLoading: true, initError: null });
-        // authUrl is deprecated and ignored by the SDK; it is only passed for
-        // backward compatibility.
         IDMissionSDK.initializeSDK(
             apiBaseUrl,
-            authUrl,
-            debugMode ? 'y' : 'n',
             accessToken.trim(),
             {
+                enableDebugMode: debugMode,
                 enableScreenRecording: this.state.screenRecording,
                 enableGPS: this.state.gpsEnabled,
                 geolocationRequired: this.state.geolocationRequired,
@@ -230,7 +231,17 @@ export default class Home extends React.Component {
     }
 
     openScanner = () => {
-        this.props.navigation.navigate('QRScanner', { onScanned: this.handleQrScanned });
+        this.props.navigation.navigate('QRScanner');
+    }
+
+    // The QR scanner returns its result as plain (serializable) params on this
+    // screen; pick it up once, then clear it so it is not applied twice.
+    componentDidUpdate(prevProps) {
+        const scanned = this.props.route?.params?.scannedQr;
+        if (scanned && scanned !== prevProps.route?.params?.scannedQr) {
+            this.handleQrScanned(scanned);
+            this.props.navigation.setParams({ scannedQr: undefined });
+        }
     }
 
     handleQrScanned = (data) => {
