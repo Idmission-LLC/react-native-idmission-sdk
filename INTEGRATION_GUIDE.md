@@ -15,7 +15,9 @@
 | React Native | 0.83 | Bare workflow or a custom dev client — **not** Expo Go |
 | Android minSdk | 26 (Android 8.0) | Required by the IDmission native SDK |
 | Android compileSdk | 36 | |
-| Java | 17 | |
+| Java | 17 | Use JDK 17 or newer |
+| Kotlin | 2.1.20 | Applied by React Native 0.83.1 |
+| Android build-tools | 36.0.0 | |
 | iOS deployment target | 15.6 | |
 | CocoaPods | latest | `sudo gem install cocoapods` |
 

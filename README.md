@@ -33,7 +33,7 @@ cd ios && pod install && cd ..
 |----------|---------|
 | React Native | 0.83+ |
 | Node | 20 |
-| Android | API 26 (Android 8.0), compileSdk 36 |
+| Android | API 26 (Android 8.0), compileSdk 36, Java 17 |
 | iOS | 15.6, CocoaPods |
 
 ## Usage

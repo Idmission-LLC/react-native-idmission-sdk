@@ -7,6 +7,7 @@
 
 ### Android
 * Bumped `idmission-mediumsdk` to 11.1.19.2.05
+* Example app: `kotlinVersion` set to 2.1.20, the version React Native 0.83.1 already applies (it was declared as 2.0.21)
 
 ### iOS
 * Bumped IDentityMediumSDK2.0 to 11.1.19.2.2
