@@ -163,7 +163,7 @@ Replace `YourAppName` with your app target's name.
 
 > **Xcode 26 / Swift 6.3 users:** the `fmt` patch in `post_install` above is required. Without it the build fails with a `fmt` consteval error.
 
-> **Upgrading from 11.1.13 or earlier?** The iOS SDK no longer depends on Google ML Kit. Remove `pod 'GoogleMLKit/TextRecognition'`, the `cocoapods-user-defined-build-types` plugin lines, and the `SWIFT_ENABLE_EXPLICIT_MODULES` `post_install` patch from your Podfile, then re-run `pod install`.
+> **Upgrading from the zip archive install?** The iOS SDK no longer depends on Google ML Kit or GZIP. Remove `pod 'GoogleMLKit/TextRecognition'`, `pod 'GZIP'`, the `cocoapods-user-defined-build-types` plugin lines, and any `SWIFT_ENABLE_EXPLICIT_MODULES` `post_install` patch from your Podfile. See [Upgrading from the zip install](#upgrading-from-the-zip-install).
 
 ### 3b. Run pod install
 
@@ -236,6 +236,8 @@ IDMissionSDK.initializeSDK(
 | `apiBaseUrl` | `string` | Base URL for IDmission API calls. Provided by IDmission for your environment. |
 | `accessToken` | `string` | Your IDmission API access token. |
 | `options` | `object` (optional) | `{ language, enableGPS, geolocationRequired, isUpdateModelsData, enableScreenRecording, enableDebugMode }`. Defaults `'en'`, `true`, `false`, `true`, `false`, `false`. `language` is `'en'` or `'es'` (Android also `'my'` and `'ar'`); unknown values fall back to `'en'`. `enableDebugMode: true` turns on verbose SDK logging (keep it `false` in production). Omitted keys keep their default. |
+
+The earlier form `initializeSDK(apiBaseUrl, authUrl, debug, accessToken)` also still works: `debug` is `'y'` or `'n'`, and `authUrl` is ignored.
 
 ### Optional: SDK version and model names
 
@@ -403,16 +405,33 @@ addDataCallbackListener((event) => {
 
 ---
 
-## Migrating from the zip archive install
+## Upgrading from the zip install
 
-If you previously integrated the wrapper by downloading a zip from Google Drive, switch to the git-based install:
+If your app was set up from the zip files (`ReactNativeSDK2AndroidResources.zip` / `ReactNativeSDK2iOSResources.zip`), switch to the npm package. It replaces the native files you copied from the zips.
 
-1. **Remove copied JavaScript** that came from the zip's `react-native` folder if you no longer need it (keep your own screens).
-2. **Remove copied Android sources** — delete the `IDMissionSDK.java` and `IDMissionPackage.java` files you copied into your app (typically under `android/app/src/main/java/<your-package>/`).
-3. **Remove the manual package registration** — in `MainApplication.kt`/`.java`, delete the `add(IDMissionPackage())` line. Autolinking now registers the module.
-4. **Revert app `build.gradle`** — remove the direct `implementation 'com.idmission.sdk2:idmission-mediumsdk:...'` line if you added it; the package declares it. Keep the Maven repository from Step 2a.
-5. **Remove copied iOS sources** — delete `IDMissionSDK.h/.m` and the Swift helper files you dragged into Xcode, and remove their bridging-header entries.
-6. **Install the package** as described in Step 1, then run `cd ios && pod install`.
+1. **Install the package** as described in [Step 1](#step-1--install-the-package).
+2. **Android.** Delete `IDMissionSDK.java` and `IDMissionPackage.java` from your app, and remove the `add(IDMissionPackage())` line from `MainApplication`; autolinking now registers the module. Remove the direct `idmission-mediumsdk` dependency line from `android/app/build.gradle`; the package declares it. Keep the IDmission Maven repository ([Step 2a](#2a-add-the-idmission-maven-repository)).
+3. **iOS.** Remove the files you added from the zip from your Xcode project (`IDMissionSDK.h`, `IDMissionSDK.m`, `IDentitySDKHelper.swift`, `ViewController.swift`, `MainViewController.h`, `MainViewController.m`, `SuccessViewController.swift`, `UserDefaults+IDentitySample.swift`) and remove `#import "IDMissionSDK.h"` from your bridging header. Update your Podfile to match [Step 3a](#3a-update-your-podfile), then reinstall the pods:
+
+   ```bash
+   cd ios
+   rm -rf Pods Podfile.lock
+   LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pod install --repo-update
+   cd ..
+   ```
+
+4. **JavaScript.** Import the module from the package instead of `NativeModules`. Your existing `initializeSDK` call, service calls and `DataCallback` listener keep working:
+
+   ```js
+   // Before
+   import { NativeModules } from 'react-native';
+   const { IDMissionSDK } = NativeModules;
+
+   // Now
+   import { IDMissionSDK } from 'react-native-idmission-sdk';
+   ```
+
+5. **Rebuild and test.** Rebuild the native apps (`npm run android` / `npm run ios`) and test one service on a device.
 
 ---
 
@@ -435,6 +454,19 @@ Re-run `pod install --repo-update`, then clean the build folder in Xcode (**Prod
 
 ### iOS build error: `Call to consteval function 'fmt::basic_format_string...'`
 Xcode 26 / Apple Clang 21 with fmt 11.0.2. Apply the `fmt/base.h` patch in the `post_install` block (Step 3a), then re-run `pod install`.
+
+### iOS build error: `The iOS deployment target 'IPHONEOS_DEPLOYMENT_TARGET' is set to 12.4, but the range of supported deployment target versions is 15.0 to ...`
+Xcode 27 rejects pod targets below iOS 15. Some React Native libraries (for example `react-native-svg` and `@react-native-async-storage/async-storage`) still declare older targets. Add this inside `post_install` in your Podfile, then run `pod install` again:
+
+```ruby
+installer.pods_project.targets.each do |target|
+  target.build_configurations.each do |build_config|
+    if build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.6
+      build_config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.6'
+    end
+  end
+end
+```
 
 ### iOS build error: `Use of undeclared identifier 'IDentitySDKHelper'`
 Remove `use_modular_headers!` from your Podfile — it creates a circular module dependency that hides the wrapper's Swift class from Objective-C.

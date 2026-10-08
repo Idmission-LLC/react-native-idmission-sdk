@@ -13,9 +13,10 @@
 * Bumped IDentityMediumSDK2.0 to 11.1.19.2.2
 * Removed the `GoogleMLKit/TextRecognition` dependency — the iOS SDK no longer uses Google ML Kit (21 fewer pods)
 * The `cocoapods-user-defined-build-types` plugin and the `SWIFT_ENABLE_EXPLICIT_MODULES = NO` workaround are no longer required
+* Example app: the Podfile raises pod targets below iOS 15.6 to 15.6, because Xcode 27 rejects targets below iOS 15 (`react-native-svg` and async-storage resource bundles declared 12.4 / 13.4)
 
 ### React Native wrapper
-* **Breaking:** `initializeSDK(apiBaseUrl, accessToken, options?)` replaces `initializeSDK(apiBaseUrl, authUrl, debug, accessToken, options?)`, matching the Flutter plugin's `idm_sdk_init`. The deprecated `authUrl` argument and the `debug` string (`'y'` / `'n'`) are gone; use the new `enableDebugMode` option (bool, default `false`) instead. Migrate `initializeSDK(url, authUrl, 'y', token)` to `initializeSDK(url, token, { enableDebugMode: true })`
+* `initializeSDK(apiBaseUrl, accessToken, options?)` is the new form. The earlier `initializeSDK(apiBaseUrl, authUrl, debug, accessToken)` call still works: `debug` (`'y'` / `'n'`) sets `enableDebugMode`, and `authUrl` is ignored as before. Import `IDMissionSDK` from the package for this to work; calling `NativeModules.IDMissionSDK.initializeSDK` directly needs the new form
 * `initializeSDK` accepts an optional `options` argument `{ language, enableGPS, geolocationRequired, isUpdateModelsData, enableScreenRecording, enableDebugMode }` that maps to the native SDK's initializer (defaults `'en'`, true, false, true, false, false; `language` is `'en'`/`'es'`, and on Android also `'my'`/`'ar'`)
 * iOS: removed the copy of the sample app's `UserDefaults` helper; the API base URL and access token are passed directly to the SDK
 * iOS: `initializeSDK` now reports `"SDK Successfully Initialized"` on success (previously `"SDK successfully initialized"`), the same text as Android

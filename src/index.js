@@ -11,6 +11,7 @@ const LINKING_ERROR =
  *
  * Method signatures mirror the native implementation:
  *   initializeSDK(apiBaseUrl, accessToken, options?)
+ *   initializeSDK(apiBaseUrl, authUrl, debug, accessToken)  -- earlier form, still supported
  *   serviceID20() / serviceID10() / serviceID185() / serviceID660()
  *   serviceID50(uniqueCustomerNumber) / serviceID175(uniqueCustomerNumber) / serviceID105(uniqueCustomerNumber)
  *   submitResult()
@@ -29,10 +30,23 @@ const nativeModule = NativeModules.IDMissionSDK;
 
 export const IDMissionSDK = nativeModule
   ? Object.assign(Object.create(nativeModule), {
-      // The native method always takes the options argument; fill it in so
-      // two-argument calls (apiBaseUrl, accessToken) work.
-      initializeSDK: (apiBaseUrl, accessToken, options = {}) =>
-        nativeModule.initializeSDK(apiBaseUrl, accessToken, options || {}),
+      initializeSDK: (apiBaseUrl, ...args) => {
+        // Earlier releases took (apiBaseUrl, authUrl, debug, accessToken).
+        // That form is recognised by the debug string in third position;
+        // authUrl was unused then too. The debug check matches the earlier
+        // releases: any value containing 'y'.
+        if (typeof args[1] === 'string') {
+          const [, debug, accessToken, options] = args;
+          return nativeModule.initializeSDK(apiBaseUrl, accessToken, {
+            ...(options || {}),
+            enableDebugMode: debug.includes('y'),
+          });
+        }
+        // The native method always takes the options argument; fill it in so
+        // two-argument calls (apiBaseUrl, accessToken) work.
+        const [accessToken, options] = args;
+        return nativeModule.initializeSDK(apiBaseUrl, accessToken, options || {});
+      },
     })
   : new Proxy(
       {},

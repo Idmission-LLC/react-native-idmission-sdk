@@ -51,6 +51,7 @@
         .api-fn-body { padding: 10px 16px; font-size: 14px; color: var(--text-muted); }
         .api-fn .code-block { margin: 8px 0 0; }
         .callout { background: #f0f6ff; border-left: 4px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 16px; margin: 16px 0; font-size: 14px; line-height: 1.6; color: var(--text); }
+
         .code-block.scroll pre { max-height: 320px; overflow-y: auto; }
         @media (max-width: 768px) { .content-body { padding: 24px 20px 60px; } }
     </style>
@@ -62,7 +63,7 @@
             <h1 id="setup">iOS React Native Wrapper</h1>
             <p class="page-subtitle">Integrate IDmission's IDentity SDK into your iOS React Native application.</p>
 
-            <h2>Prerequisites</h2>
+            <h2 id="prerequisites">Prerequisites</h2>
             <ul class="sub-steps" style="margin-bottom: 20px;">
                 <li class="sub-step"><span class="sub-bullet"></span><div><strong>React Native</strong> 0.83 or later (bare workflow or a custom dev client — <em>not</em> Expo Go) — <a href="https://reactnative.dev/docs/environment-setup" target="_blank">React Native environment setup →</a></div></li>
                 <li class="sub-step"><span class="sub-bullet"></span><div><strong>Node</strong> 20 or later</div></li>
@@ -71,7 +72,7 @@
                 <li class="sub-step"><span class="sub-bullet"></span><div>A <strong>physical iOS device</strong> — the simulator does not support camera capture</div></li>
             </ul>
 
-            <h2>Setup</h2>
+            <h2 id="setup-steps">Setup</h2>
             <ol class="steps">
 
                 <li class="step">
@@ -142,7 +143,7 @@ cd ..</code></pre>
                         </div>
                         <div class="callout">The <code>LANG</code> / <code>LC_ALL</code> prefixes avoid the CocoaPods <code>Unicode Normalization</code> error on non-UTF-8 terminals.</div>
                         <div class="callout"><strong>Xcode 26 / Swift 6.3:</strong> the <code>fmt</code> patch in <code>post_install</code> above is required. Without it the build fails with a <code>fmt</code> consteval error.</div>
-                        <div class="callout"><strong>Upgrading from 11.1.13 or earlier?</strong> The iOS SDK no longer depends on Google ML Kit. Remove <code>pod 'GoogleMLKit/TextRecognition'</code>, the <code>cocoapods-user-defined-build-types</code> plugin lines, and the <code>SWIFT_ENABLE_EXPLICIT_MODULES</code> <code>post_install</code> patch from your Podfile, then re-run <code>pod install</code>.</div>
+                        <div class="callout"><strong>Upgrading from the zip install?</strong> See <a href="#upgrading">Upgrading from the zip install</a> for the Podfile lines to remove.</div>
                     </div>
                 </li>
 
@@ -203,9 +204,9 @@ subscription.remove();</code></pre>
             </div>
 
             <div class="api-functions">
-                <div class="api-fn">
+                <div class="api-fn" id="fn-init">
                     <div class="api-fn-header"><span class="api-badge">Init</span><span class="api-fn-name">IDMissionSDK.initializeSDK</span></div>
-                    <div class="api-fn-body"><p>Initializes the SDK. Must be called before any other function.</p>
+                    <div class="api-fn-body"><p>Initializes the SDK. Must be called before any other function. The earlier form <code>initializeSDK(apiBaseUrl, authUrl, debug, accessToken)</code> also still works, with <code>debug</code> set to <code>'y'</code> or <code>'n'</code>.</p>
                         <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.initializeSDK(
   apiBaseUrl,   // string — API base URL, provided by IDmission
   accessToken,  // string — your IDmission access token
@@ -219,7 +220,7 @@ subscription.remove();</code></pre>
   }
 );</code></pre></div></div>
                 </div>
-                <div class="api-fn">
+                <div class="api-fn" id="fn-sdk-info">
                     <div class="api-fn-header"><span class="api-badge">Info</span><span class="api-fn-name">IDMissionSDK.getSDKInfo</span></div>
                     <div class="api-fn-body"><p>Returns a Promise with the native SDK version and the ML model names in use. <code>models</code> is empty until the SDK has been initialized.</p>
                         <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>const { version, models } = await IDMissionSDK.getSDKInfo();
@@ -273,6 +274,18 @@ IDMissionSDK.submitResult();</code></pre></div></div>
                         <div class="code-block"><div class="code-block-header"><span class="code-lang">JavaScript</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>IDMissionSDK.submitResult();</code></pre></div></div>
                 </div>
             </div>
+
+            <h2 id="upgrading">Upgrading from the zip install</h2>
+            <p>If your app was set up from <code>ReactNativeSDK2iOSResources.zip</code>, switch to the GitHub package. It replaces the files you copied from the zip.</p>
+            <ol class="steps">
+                <li class="step"><div class="step-num">1</div><div class="step-body"><p>Install the package as shown in <a href="#setup-steps">Step 1</a>.</p></div></li>
+                <li class="step"><div class="step-num">2</div><div class="step-body"><p>Remove the files you added from the zip from your Xcode project: <code>IDMissionSDK.h</code>, <code>IDMissionSDK.m</code>, <code>IDentitySDKHelper.swift</code>, <code>ViewController.swift</code>, <code>MainViewController.h</code>, <code>MainViewController.m</code>, <code>SuccessViewController.swift</code> and <code>UserDefaults+IDentitySample.swift</code>. Also remove <code>#import "IDMissionSDK.h"</code> from your bridging header.</p></div></li>
+                <li class="step"><div class="step-num">3</div><div class="step-body"><p>Update your Podfile to match <a href="#setup-steps">Step 2</a>. The SDK no longer needs the GZIP and Google ML Kit pods, the <code>cocoapods-user-defined-build-types</code> lines or any <code>SWIFT_ENABLE_EXPLICIT_MODULES</code> patch. Then reinstall the pods:</p><div class="code-block"><div class="code-block-header"><span class="code-lang">Shell</span><button class="copy-btn" onclick="copyCode(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div><pre><code>cd ios
+rm -rf Pods Podfile.lock
+LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pod install --repo-update
+cd ..</code></pre></div></div></li>
+                <li class="step"><div class="step-num">4</div><div class="step-body"><p>Import the module from the package instead of <code>NativeModules</code>: <code>import { IDMissionSDK, addDataCallbackListener } from 'react-native-idmission-sdk';</code>. Your existing <code>initializeSDK</code> call and the rest of your code keep working.</p><p>Then rebuild with <code>npm run ios</code> and test one service on a device.</p></div></li>
+            </ol>
         </div>
     </div>
 </div>
