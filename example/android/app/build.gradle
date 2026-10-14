@@ -64,14 +64,14 @@ def enableProguardInReleaseBuilds = false
  * The preferred build flavor of JavaScriptCore (JSC)
  *
  * For example, to use the international variant, you can use:
- * `def jscFlavor = io.github.react-native-community:jsc-android-intl:2026004.+`
+ * `def jscFlavor = io.github.react-native-community:org.webkit:android-jsc-intl:+`
  *
  * The international variant includes ICU i18n library and necessary data
  * allowing to use e.g. `Date.toLocaleString` and `String.localeCompare` that
  * give correct results when using with locales other than en-US. Note that
  * this variant is about 6MiB larger per architecture than default.
  */
-def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
+def jscFlavor = 'org.webkit:android-jsc:+'
 
 /**
  * Release signing credentials, kept out of git in android/keystore.properties
@@ -101,6 +101,17 @@ android {
             // Only include these architectures in the build
             abiFilters "arm64-v8a"
         }
+
+        // Build toolchain versions, shown on the Home screen's "Build Versions" card
+        // (read through AppVersionInfoModule) so testers can confirm the configuration.
+        // KOTLIN_VERSION is what android/build.gradle asks for; KOTLIN_PLUGIN_VERSION is
+        // the Kotlin Gradle plugin/compiler actually applied, which React Native may override.
+        buildConfigField "String", "KOTLIN_VERSION", "\"${rootProject.ext.kotlinVersion}\""
+        buildConfigField "String", "KOTLIN_PLUGIN_VERSION", "\"${plugins.findPlugin('org.jetbrains.kotlin.android')?.pluginVersion ?: 'unknown'}\""
+        buildConfigField "String", "GRADLE_VERSION", "\"${gradle.gradleVersion}\""
+        buildConfigField "String", "AGP_VERSION", "\"${com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION}\""
+        buildConfigField "int", "COMPILE_SDK_VERSION", "${rootProject.ext.compileSdkVersion}"
+        buildConfigField "int", "MIN_SDK_VERSION", "${rootProject.ext.minSdkVersion}"
     }
     signingConfigs {
         debug {
@@ -119,10 +130,14 @@ android {
         }
     }
     buildTypes {
+        // React Native 0.77's Gradle plugin does not fill ${usesCleartextTraffic} in
+        // AndroidManifest.xml (0.80+ does), so set it here: allowed for Metro in debug only.
         debug {
             signingConfig signingConfigs.debug
+            manifestPlaceholders = [usesCleartextTraffic: "true"]
         }
         release {
+            manifestPlaceholders = [usesCleartextTraffic: "false"]
             signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"

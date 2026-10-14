@@ -192,6 +192,22 @@ const styles = StyleSheet.create({
         color: constant.black,
         marginBottom: 12,
     },
+    versionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: 3,
+    },
+    versionLabel: {
+        fontSize: 13,
+        color: constant.slate,
+        flexShrink: 1,
+        marginRight: 8,
+    },
+    versionValue: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: constant.black,
+    },
     sdkInfoEmpty: {
         fontSize: 13,
         color: constant.slate,

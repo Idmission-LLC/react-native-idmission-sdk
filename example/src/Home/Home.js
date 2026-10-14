@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, TouchableOpacity, Text, Modal, Switch } from 'react-native'
+import { View, TouchableOpacity, Text, Modal, Switch, Platform, NativeModules } from 'react-native'
 import { ScrollView, NativeBaseProvider, Spinner } from "native-base";
 import * as constant from '../Constant'
 import styles from '../Styles'
@@ -39,6 +39,17 @@ const deriveApiBaseUrlFromQrUrl = (url) => {
     return null;
 }
 
+// Versions of the JS side of the build, read at runtime.
+const getJsVersions = () => {
+    const rn = Platform.constants?.reactNativeVersion;
+    const hermes = global.HermesInternal?.getRuntimeProperties?.();
+    return {
+        react: React.version,
+        reactNative: rn ? `${rn.major}.${rn.minor}.${rn.patch}${rn.prerelease ? `-${rn.prerelease}` : ''}` : '-',
+        hermes: hermes ? (hermes['OSS Release Version'] ? `enabled (${hermes['OSS Release Version']})` : 'enabled') : 'disabled',
+    };
+}
+
 export default class Home extends React.Component {
     constructor(props) {
         super(props);
@@ -52,6 +63,9 @@ export default class Home extends React.Component {
             geolocationRequired: false,
             sdkVersion: '',
             sdkModels: [],
+            // Native build versions from the example app's AppVersionInfo module
+            // (Android only); null until loaded or when the module is missing.
+            versionInfo: null,
             accessToken: '',
             loginId: '',
             password: '',
@@ -70,6 +84,7 @@ export default class Home extends React.Component {
     componentDidMount() {
         this.loadSettings();
         this.loadSdkInfo();
+        this.loadVersionInfo();
         // While on this page, every DataCallback event is the result of the
         // initializeSDK() call — service/submit events are only handled once
         // the Identity Services page (and its own listener) is mounted.
@@ -127,6 +142,15 @@ export default class Home extends React.Component {
             this.setState({ sdkVersion: info?.version || '', sdkModels: info?.models || [] });
         } catch (e) {
             console.log('Failed to read SDK info', e);
+        }
+    }
+
+    loadVersionInfo = async () => {
+        try {
+            const info = await NativeModules.AppVersionInfo?.getVersionInfo();
+            this.setState({ versionInfo: info || null });
+        } catch (e) {
+            console.log('Failed to read build version info', e);
         }
     }
 
@@ -355,6 +379,40 @@ export default class Home extends React.Component {
         </View>
     );
 
+    renderVersionRow = (label, value) => (
+        <View key={label} style={styles.versionRow}>
+            <Text style={styles.versionLabel}>{label}</Text>
+            <Text style={styles.versionValue} selectable>{value != null && value !== '' ? String(value) : '-'}</Text>
+        </View>
+    );
+
+    renderVersionInfo = () => {
+        const js = getJsVersions();
+        const n = this.state.versionInfo || {};
+        return (
+            <View style={[styles.sdkInfoCard, { marginTop: 0, marginBottom: 16 }]}>
+                <Text style={styles.sdkInfoTitle}>Build Versions</Text>
+                {this.renderVersionRow('React', js.react)}
+                {this.renderVersionRow('React Native', js.reactNative)}
+                {this.renderVersionRow('Hermes', js.hermes)}
+                {this.renderVersionRow('IDMission SDK', this.state.sdkVersion)}
+                {Platform.OS === 'android' ? (
+                    <>
+                        {this.renderVersionRow('Kotlin (configured)', n.kotlinVersion)}
+                        {this.renderVersionRow('Kotlin compiler', n.kotlinPluginVersion)}
+                        {this.renderVersionRow('Kotlin stdlib (runtime)', n.kotlinStdlibVersion)}
+                        {this.renderVersionRow('Gradle', n.gradleVersion)}
+                        {this.renderVersionRow('Android Gradle Plugin', n.agpVersion)}
+                        {this.renderVersionRow('compile / target / min SDK',
+                            n.compileSdkVersion ? `${n.compileSdkVersion} / ${n.targetSdkVersion} / ${n.minSdkVersion}` : null)}
+                        {this.renderVersionRow('New Architecture', n.newArchEnabled == null ? null : (n.newArchEnabled ? 'enabled' : 'disabled'))}
+                        {this.renderVersionRow('Device Android', n.deviceAndroidVersion)}
+                    </>
+                ) : null}
+            </View>
+        );
+    }
+
     renderButton = (label, onPress, secondary = false) => (
         <TouchableOpacity
             style={[styles.actionButton, styles.compactButton, secondary && styles.actionButtonSecondary]}
@@ -381,6 +439,7 @@ export default class Home extends React.Component {
 
                     <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
                         <View style={[styles.card, { marginTop: 20 }]}>
+                            {this.renderVersionInfo()}
                             {this.renderInput("Access Token Auth URL", "https://auth.idmission.com/auth/realms/identity/protocol/openid-connect/token", this.saveAuthUrl, { value: this.state.authUrl })}
                             <View style={styles.inputRow}>
                                 {this.renderInput("Login ID", "Login ID", this.saveCredential('loginId'), { value: this.state.loginId, style: styles.inputRowItem })}
