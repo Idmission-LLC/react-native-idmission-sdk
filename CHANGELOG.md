@@ -2,11 +2,11 @@
 
 ## 11.1.19
 
-**Android native SDK: 11.1.19.2.05**
+**Android native SDK: 11.1.19.2.10**
 **iOS native SDK: 11.1.19.2.2**
 
 ### Android
-* Bumped `idmission-mediumsdk` to 11.1.19.2.05
+* Bumped `idmission-mediumsdk` to 11.1.19.2.10
 * Example app: `kotlinVersion` set to 2.1.20, the version React Native 0.83.1 already applies (it was declared as 2.0.21)
 
 ### iOS
