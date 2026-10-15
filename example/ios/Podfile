@@ -22,7 +22,7 @@ target 'IDMTest' do
   # `react_native_idmission_sdk-Swift.h`; modular headers create a circular module
   # dependency that makes the Swift class invisible to ObjC ("Use of undeclared
   # identifier 'IDentitySDKHelper'").
-  pod 'IDentityMediumSDK2.0', :git => 'https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git', :tag => '11.1.19.2.2'
+  pod 'IDentityMediumSDK2.0', :git => 'https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git', :tag => '11.1.19.2.5'
   
   use_react_native!(
     :path => config[:reactNativePath],

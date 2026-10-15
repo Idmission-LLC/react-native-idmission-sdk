@@ -3,14 +3,14 @@
 ## 11.1.19
 
 **Android native SDK: 11.1.19.2.10**
-**iOS native SDK: 11.1.19.2.2**
+**iOS native SDK: 11.1.19.2.5**
 
 ### Android
 * Bumped `idmission-mediumsdk` to 11.1.19.2.10
 * Example app: `kotlinVersion` set to 2.1.20, the version React Native 0.83.1 already applies (it was declared as 2.0.21)
 
 ### iOS
-* Bumped IDentityMediumSDK2.0 to 11.1.19.2.2
+* Bumped IDentityMediumSDK2.0 to 11.1.19.2.5
 * Removed the `GoogleMLKit/TextRecognition` dependency — the iOS SDK no longer uses Google ML Kit (21 fewer pods)
 * The `cocoapods-user-defined-build-types` plugin and the `SWIFT_ENABLE_EXPLICIT_MODULES = NO` workaround are no longer required
 * Example app: the Podfile raises pod targets below iOS 15.6 to 15.6, because Xcode 27 rejects targets below iOS 15 (`react-native-svg` and async-storage resource bundles declared 12.4 / 13.4)

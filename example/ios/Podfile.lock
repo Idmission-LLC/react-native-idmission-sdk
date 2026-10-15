@@ -8,7 +8,7 @@ PODS:
   - hermes-engine (0.14.0):
     - hermes-engine/Pre-built (= 0.14.0)
   - hermes-engine/Pre-built (0.14.0)
-  - IDentityMediumSDK2.0 (11.1.19.2.2)
+  - IDentityMediumSDK2.0 (11.1.19.2.5)
   - RCT-Folly (2024.11.18.00):
     - boost
     - DoubleConversion
@@ -2723,7 +2723,7 @@ DEPENDENCIES:
   - fmt (from `../node_modules/react-native/third-party-podspecs/fmt.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
-  - IDentityMediumSDK2.0 (from `https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git`, tag `11.1.19.2.2`)
+  - IDentityMediumSDK2.0 (from `https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git`, tag `11.1.19.2.5`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
   - RCTRequired (from `../node_modules/react-native/Libraries/Required`)
@@ -2825,7 +2825,7 @@ EXTERNAL SOURCES:
     :tag: hermes-v0.14.0
   IDentityMediumSDK2.0:
     :git: https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git
-    :tag: 11.1.19.2.2
+    :tag: 11.1.19.2.5
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTDeprecation:
@@ -2982,7 +2982,7 @@ EXTERNAL SOURCES:
 CHECKOUT OPTIONS:
   IDentityMediumSDK2.0:
     :git: https://gitlab.idmission.com/apps/sdk2.0/ios/cocoapods/identitymediumsdk2.0.git
-    :tag: 11.1.19.2.2
+    :tag: 11.1.19.2.5
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
@@ -2992,7 +2992,7 @@ SPEC CHECKSUMS:
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: de40a4371f33241c21822d663ce01b1d2ac6d1e9
-  IDentityMediumSDK2.0: f9b5aac2264d09f2deee19927dd64fcf50d7182b
+  IDentityMediumSDK2.0: 894c4c54aa3d00cbef3cc79ed529ce6e887390b8
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
   RCTDeprecation: a41bbdd9af30bf2e5715796b313e44ec43eefff1
   RCTRequired: 7be34aabb0b77c3cefe644528df0fa0afad4e4d0
@@ -3071,6 +3071,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 5456bb010373068fc92221140921b09d126b116e
 
-PODFILE CHECKSUM: e1f14d50f0f53fa8b779998ee5677f2a80f65e1a
+PODFILE CHECKSUM: dc7056b4ee325de27edc6d9aeb858146b5f37a14
 
 COCOAPODS: 1.16.2

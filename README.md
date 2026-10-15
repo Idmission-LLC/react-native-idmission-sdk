@@ -78,4 +78,4 @@ A working example app is included in [`example/`](example/).
 ## Native SDK versions
 
 - Android: `idmission-mediumsdk 11.1.19.2.10`
-- iOS: `IDentityMediumSDK2.0 11.1.19.2.2`
+- iOS: `IDentityMediumSDK2.0 11.1.19.2.5`
