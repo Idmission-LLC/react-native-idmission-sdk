@@ -1,6 +1,5 @@
 import React from 'react'
-import { View, TouchableOpacity, Text, Modal, Switch } from 'react-native'
-import { ScrollView, NativeBaseProvider, Spinner } from "native-base";
+import { View, TouchableOpacity, Text, Modal, Switch, ScrollView, ActivityIndicator } from 'react-native'
 import * as constant from '../Constant'
 import styles from '../Styles'
 import { IDMissionSDK, addDataCallbackListener } from 'react-native-idmission-sdk';
@@ -295,7 +294,7 @@ export default class Home extends React.Component {
         >
             <View style={styles.loaderOverlay}>
                 <View style={styles.loaderContainer}>
-                    <Spinner size="lg" color={constant.primary} />
+                    <ActivityIndicator size="large" color={constant.primary} />
                 </View>
             </View>
         </Modal>
@@ -369,52 +368,50 @@ export default class Home extends React.Component {
 
     render() {
         return (
-            <NativeBaseProvider>
-                <View style={styles.container}>
-                    <NavBar
-                        title="Identity React"
-                        right={<NavBarScanQrButton onPress={this.openScanner} />}
-                    />
-                    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.container}>
+            <View style={styles.container}>
+                <NavBar
+                    title="Identity React"
+                    right={<NavBarScanQrButton onPress={this.openScanner} />}
+                />
+                <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.container}>
 
-                    {this.renderLoader()}
+                {this.renderLoader()}
 
-                    <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-                        <View style={[styles.card, { marginTop: 20 }]}>
-                            {this.renderInput("Access Token Auth URL", "https://auth.idmission.com/auth/realms/identity/protocol/openid-connect/token", this.saveAuthUrl, { value: this.state.authUrl })}
-                            <View style={styles.inputRow}>
-                                {this.renderInput("Login ID", "Login ID", this.saveCredential('loginId'), { value: this.state.loginId, style: styles.inputRowItem })}
-                                {this.renderInput("Password", "Password", this.saveCredential('password'), { secure: true, value: this.state.password, style: styles.inputRowItem })}
-                            </View>
-                            <View style={styles.inputRow}>
-                                {this.renderInput("Client ID", "Client ID", this.saveCredential('clientId'), { value: this.state.clientId, style: styles.inputRowItem })}
-                                {this.renderInput("Client Secret", "Client Secret", this.saveCredential('clientSecret'), { secure: true, value: this.state.clientSecret, style: styles.inputRowItem })}
-                            </View>
-                            {this.renderButton(this.state.tokenGenerated ? "Generate Access Token \u2713" : "Generate Access Token \u2715", () => this.onGenerateToken())}
-                            {this.state.tokenError ? (
-                                <Text style={styles.tokenErrorText}>{this.state.tokenError}</Text>
-                            ) : null}
-
-                            <View style={{ height: 12 }} />
-                            {this.renderInput("API Base URL", "https://api.idmission.com", this.saveApiBaseUrl, { value: this.state.apiBaseUrl })}
-                            {this.renderInput("Access Token", "Generate a token above, or paste one", this.saveAccessToken, { value: this.state.accessToken })}
-
-                            {this.renderSwitch("Enable Debug Mode", "debugMode")}
-                            {this.renderSwitch("Enable Screen Recording", "screenRecording")}
-                            {this.renderSwitch("Enable GPS Location", "gpsEnabled")}
-                            {this.renderSwitch("Geolocation Required", "geolocationRequired")}
-
-                            {this.renderButton("Initialize SDK", () => this.onInit())}
-                            {this.state.initError ? (
-                                <Text style={styles.tokenErrorText}>{this.state.initError}</Text>
-                            ) : null}
-
-                            {this.renderSdkInfo()}
+                <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+                    <View style={[styles.card, { marginTop: 20 }]}>
+                        {this.renderInput("Access Token Auth URL", "https://auth.idmission.com/auth/realms/identity/protocol/openid-connect/token", this.saveAuthUrl, { value: this.state.authUrl })}
+                        <View style={styles.inputRow}>
+                            {this.renderInput("Login ID", "Login ID", this.saveCredential('loginId'), { value: this.state.loginId, style: styles.inputRowItem })}
+                            {this.renderInput("Password", "Password", this.saveCredential('password'), { secure: true, value: this.state.password, style: styles.inputRowItem })}
                         </View>
-                    </ScrollView>
-                    </SafeAreaView>
-                </View>
-            </NativeBaseProvider>
+                        <View style={styles.inputRow}>
+                            {this.renderInput("Client ID", "Client ID", this.saveCredential('clientId'), { value: this.state.clientId, style: styles.inputRowItem })}
+                            {this.renderInput("Client Secret", "Client Secret", this.saveCredential('clientSecret'), { secure: true, value: this.state.clientSecret, style: styles.inputRowItem })}
+                        </View>
+                        {this.renderButton(this.state.tokenGenerated ? "Generate Access Token \u2713" : "Generate Access Token \u2715", () => this.onGenerateToken())}
+                        {this.state.tokenError ? (
+                            <Text style={styles.tokenErrorText}>{this.state.tokenError}</Text>
+                        ) : null}
+
+                        <View style={{ height: 12 }} />
+                        {this.renderInput("API Base URL", "https://api.idmission.com", this.saveApiBaseUrl, { value: this.state.apiBaseUrl })}
+                        {this.renderInput("Access Token", "Generate a token above, or paste one", this.saveAccessToken, { value: this.state.accessToken })}
+
+                        {this.renderSwitch("Enable Debug Mode", "debugMode")}
+                        {this.renderSwitch("Enable Screen Recording", "screenRecording")}
+                        {this.renderSwitch("Enable GPS Location", "gpsEnabled")}
+                        {this.renderSwitch("Geolocation Required", "geolocationRequired")}
+
+                        {this.renderButton("Initialize SDK", () => this.onInit())}
+                        {this.state.initError ? (
+                            <Text style={styles.tokenErrorText}>{this.state.initError}</Text>
+                        ) : null}
+
+                        {this.renderSdkInfo()}
+                    </View>
+                </ScrollView>
+                </SafeAreaView>
+            </View>
         )
     }
 }
