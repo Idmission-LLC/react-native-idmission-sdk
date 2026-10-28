@@ -1,6 +1,5 @@
 import React from 'react'
-import { View, TouchableOpacity, Text, Modal, BackHandler } from 'react-native'
-import { ScrollView, NativeBaseProvider, Spinner } from "native-base";
+import { View, TouchableOpacity, Text, Modal, BackHandler, ScrollView, ActivityIndicator } from 'react-native'
 import * as constant from '../Constant'
 import styles from '../Styles'
 import { IDMissionSDK, addDataCallbackListener } from 'react-native-idmission-sdk';
@@ -101,7 +100,7 @@ export default class IdentityServices extends React.Component {
         >
             <View style={styles.loaderOverlay}>
                 <View style={styles.loaderContainer}>
-                    <Spinner size="lg" color={constant.primary} />
+                    <ActivityIndicator size="large" color={constant.primary} />
                 </View>
             </View>
         </Modal>
@@ -139,41 +138,39 @@ export default class IdentityServices extends React.Component {
 
     render() {
         return (
-            <NativeBaseProvider>
-                <View style={styles.container}>
-                    <NavBar
-                        title="Identity Services"
-                        left={<NavBarBackButton onPress={() => this.props.navigation.replace("Home")} />}
-                    />
-                    <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.container}>
+            <View style={styles.container}>
+                <NavBar
+                    title="Identity Services"
+                    left={<NavBarBackButton onPress={() => this.props.navigation.replace("Home")} />}
+                />
+                <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.container}>
 
-                    {this.renderLoader()}
+                {this.renderLoader()}
 
-                    <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-                        <View style={[styles.card, { marginTop: 20 }]}>
-                            {this.renderInput("Unique Customer Number", "Unique Customer Number", (text) => this.saveUniqueCustomerNumber(text))}
+                <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+                    <View style={[styles.card, { marginTop: 20 }]}>
+                        {this.renderInput("Unique Customer Number", "Unique Customer Number", (text) => this.saveUniqueCustomerNumber(text))}
 
-                            {this.renderButton("ID Validation", () => this.onServiceID20(), true)}
-                            {this.renderButton("ID + Match Face", () => this.onServiceID10(), true)}
-                            {this.renderButton("Identify Customer", () => this.onServiceID185(), true)}
-                            {this.renderButton("Customer Verification", () => this.onServiceID105(), true)}
-                            {this.renderButton("Live Face Check", () => this.onServiceID660(), true)}
-                            {this.renderButton("ID + Customer Enroll", () => this.onServiceID50(), true)}
-                            {this.renderButton("Enroll Biometrics", () => this.onServiceID175(), true)}
-                        </View>
+                        {this.renderButton("ID Validation", () => this.onServiceID20(), true)}
+                        {this.renderButton("ID + Match Face", () => this.onServiceID10(), true)}
+                        {this.renderButton("Identify Customer", () => this.onServiceID185(), true)}
+                        {this.renderButton("Customer Verification", () => this.onServiceID105(), true)}
+                        {this.renderButton("Live Face Check", () => this.onServiceID660(), true)}
+                        {this.renderButton("ID + Customer Enroll", () => this.onServiceID50(), true)}
+                        {this.renderButton("Enroll Biometrics", () => this.onServiceID175(), true)}
+                    </View>
 
-                        <View style={{ paddingHorizontal: 16 }}>
-                            <TouchableOpacity
-                                style={[styles.actionButton, styles.submitButton]}
-                                onPress={() => this.onSubmit()}
-                            >
-                                <Text style={styles.actionButtonText}>Submit Result</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </ScrollView>
-                    </SafeAreaView>
-                </View>
-            </NativeBaseProvider>
+                    <View style={{ paddingHorizontal: 16 }}>
+                        <TouchableOpacity
+                            style={[styles.actionButton, styles.submitButton]}
+                            onPress={() => this.onSubmit()}
+                        >
+                            <Text style={styles.actionButtonText}>Submit Result</Text>
+                        </TouchableOpacity>
+                    </View>
+                </ScrollView>
+                </SafeAreaView>
+            </View>
         )
     }
 }

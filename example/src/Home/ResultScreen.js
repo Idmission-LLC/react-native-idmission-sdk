@@ -1,6 +1,5 @@
 import React from 'react'
-import { View, TouchableOpacity, Text, Image, BackHandler, Modal, FlatList, Dimensions } from 'react-native'
-import { Container, HStack, Button, Center, VStack, Pressable, Box, NativeBaseProvider, ScrollView } from "native-base";
+import { View, TouchableOpacity, Text, Image, BackHandler, Modal, FlatList, Dimensions, ScrollView } from 'react-native'
 import * as constant from '../Constant'
 import styles from '../Styles'
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -176,49 +175,47 @@ export default class ResultScreen extends React.Component {
         const formattedData = this.getFormattedData(eventName, eventResponse);
 
         return (
-            <NativeBaseProvider>
-                <SafeAreaView style={styles.container}>
-                    <View style={styles.header}>
-                        <TouchableOpacity
-                            onPress={() => this.props.navigation.goBack()}
-                            style={{ marginBottom: 8 }}
-                        >
-                            <Text style={{ color: constant.primary, fontWeight: '600' }}>← Back to Services</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Response Data</Text>
+            <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity
+                        onPress={() => this.props.navigation.goBack()}
+                        style={{ marginBottom: 8 }}
+                    >
+                        <Text style={{ color: constant.primary, fontWeight: '600' }}>← Back to Services</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Response Data</Text>
+                </View>
+
+                <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+
+                    <View style={styles.card}>
+                        {eventName === "Data" && (
+                            <View style={styles.resultCard}>
+                                <Text style={styles.resultText}>
+                                    {formattedData}
+                                </Text>
+                            </View>
+                        )}
+
+                        {eventName === "Data" && this.renderImages()}
+
+                        {eventName === "Image" && (
+                            <View style={{ alignItems: 'center', marginTop: 10 }}>
+                                <Image
+                                    source={{ uri: "data:image/png;base64," + eventResponse }}
+                                    style={[styles.imageStyle, { borderRadius: 12 }]}
+                                    resizeMode="contain"
+                                />
+                            </View>
+                        )}
+
+                        {!formattedData && eventName !== "Image" && (
+                            <Text style={styles.slate}>No data available for this event.</Text>
+                        )}
                     </View>
-
-                    <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-
-                        <View style={styles.card}>
-                            {eventName === "Data" && (
-                                <View style={styles.resultCard}>
-                                    <Text style={styles.resultText}>
-                                        {formattedData}
-                                    </Text>
-                                </View>
-                            )}
-
-                            {eventName === "Data" && this.renderImages()}
-
-                            {eventName === "Image" && (
-                                <View style={{ alignItems: 'center', marginTop: 10 }}>
-                                    <Image
-                                        source={{ uri: "data:image/png;base64," + eventResponse }}
-                                        style={[styles.imageStyle, { borderRadius: 12 }]}
-                                        resizeMode="contain"
-                                    />
-                                </View>
-                            )}
-
-                            {!formattedData && eventName !== "Image" && (
-                                <Text style={styles.slate}>No data available for this event.</Text>
-                            )}
-                        </View>
-                    </ScrollView>
-                    {this.renderViewer()}
-                </SafeAreaView>
-            </NativeBaseProvider>
+                </ScrollView>
+                {this.renderViewer()}
+            </SafeAreaView>
         )
     }
 }
