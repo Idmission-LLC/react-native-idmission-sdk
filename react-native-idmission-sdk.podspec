@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.dependency "React-Core"
 
   # IDmission native iOS SDK
-  s.dependency "IDentityMediumSDK2.0"
+  s.dependency "IDentityMediumSDK2.0", "11.1.19.2.5"
 
   # The module mixes Objective-C and Swift, so it must define a clang module
   # (this produces the `react_native_idmission_sdk-Swift.h` header imported by
